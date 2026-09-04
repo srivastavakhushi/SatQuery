@@ -1,6 +1,6 @@
 # Multi-Modal Geospatial AI Backend Gateway
 
-A modular FastAPI backend featuring an Intent Classifier, LangGraph Agent State Machine & Task Planner, Extensible Tool Registry with remote model adapters (GeoChat, CDChat, Popeye, ResNet-50), Sih raster/fusion, and audit-grade execution traces.
+A modular FastAPI backend featuring an Intent Classifier, LangGraph Agent State Machine & Task Planner, Extensible Tool Registry with remote model adapters (GeoChat, CDChat, Popeye, ResNet-50), raster/fusion, and audit-grade execution traces.
 
 This gateway does **not** load large model weights. Inference happens at configured remote HTTP endpoints.
 
