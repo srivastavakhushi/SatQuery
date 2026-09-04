@@ -1,0 +1,159 @@
+{
+  "trace_id": "trc-3df2660479bc",
+  "query": "What changed between these two images?",
+  "selected_task": "BI_TEMPORAL_CHANGE",
+  "models_dispatched": [
+    "MetadataReader",
+    "ChangeDetection",
+    "CDChat",
+    "EvidenceFusion"
+  ],
+  "parameters": {
+    "image_ids": [
+      "img-295884777e",
+      "img-eb5c5bd4e8"
+    ],
+    "intent_explanation": "Matched exact change detection question pattern",
+    "selected_model": "CDChat",
+    "cdchat_latency": 0.0013
+  },
+  "latency": 0.095,
+  "confidence": 0.91,
+  "timestamp": "2026-09-02T20:22:27.091774Z",
+  "intent_confidence": 0.96,
+  "selected_model": "CDChat",
+  "image_ids": [
+    "img-295884777e",
+    "img-eb5c5bd4e8"
+  ],
+  "cdchat_execution_time": 0.0013,
+  "cdchat_result": {
+    "answer": "New buildings appeared.",
+    "model": "cdchat",
+    "confidence": 0.91,
+    "mock": false,
+    "raw": {
+      "answer": "New buildings appeared.",
+      "model": "cdchat",
+      "confidence": 0.91
+    },
+    "elapsed_seconds": 0.0013,
+    "status": "success",
+    "summary": "New buildings appeared.",
+    "image_ids": [
+      "img-295884777e",
+      "img-eb5c5bd4e8"
+    ],
+    "task": "bi_temporal_change_detection"
+  },
+  "fusion_result": {
+    "status": "success",
+    "decision": "HIGH_CONFIDENCE_CHANGE",
+    "fusion_confidence": 0.91,
+    "fused_evidence_count": 1,
+    "consolidated_evidence": [
+      "[ChangeDetection]: New buildings appeared.",
+      "[cdchat]: Task: bi_temporal_change_detection (score=0.91)"
+    ],
+    "sih_evidence": [
+      {
+        "source": "cdchat",
+        "score": 0.91,
+        "description": "Task: bi_temporal_change_detection"
+      }
+    ],
+    "cdchat": {
+      "answer": "New buildings appeared.",
+      "confidence": 0.91,
+      "model": "cdchat",
+      "elapsed_seconds": 0.0013,
+      "image_ids": [
+        "img-295884777e",
+        "img-eb5c5bd4e8"
+      ]
+    },
+    "temporal_evidence": {
+      "image_count": 2,
+      "images": [
+        {
+          "image_id": "img-295884777e",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-295884777e_image1.png",
+          "raster_metadata": {
+            "filename": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-295884777e_image1.png",
+            "width": 1,
+            "height": 1,
+            "band_count": 4,
+            "crs": "None",
+            "resolution": [
+              1.0,
+              1.0
+            ],
+            "bounds": {
+              "left": 0.0,
+              "bottom": 1.0,
+              "right": 1.0,
+              "top": 0.0
+            },
+            "dtype": "uint8",
+            "nodata": null
+          },
+          "width": 1,
+          "height": 1,
+          "band_count": 4,
+          "crs": "None"
+        },
+        {
+          "image_id": "img-eb5c5bd4e8",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-eb5c5bd4e8_image2.png",
+          "raster_metadata": {
+            "filename": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-eb5c5bd4e8_image2.png",
+            "width": 1,
+            "height": 1,
+            "band_count": 4,
+            "crs": "None",
+            "resolution": [
+              1.0,
+              1.0
+            ],
+            "bounds": {
+              "left": 0.0,
+              "bottom": 1.0,
+              "right": 1.0,
+              "top": 0.0
+            },
+            "dtype": "uint8",
+            "nodata": null
+          },
+          "width": 1,
+          "height": 1,
+          "band_count": 4,
+          "crs": "None"
+        }
+      ]
+    },
+    "spatial_evidence": {
+      "analysis_type": "Bi-Temporal Overlap Alignment",
+      "engine": "Sih/raster.alignment.check_alignment",
+      "status": "completed",
+      "shape": [
+        4,
+        1,
+        1
+      ],
+      "mean_pixel_difference": 0.0,
+      "max_pixel_difference": 0.0,
+      "coordinate_system": "None"
+    },
+    "metadata_relevance": "Sih fusion/evidence.fuse_evidence"
+  },
+  "errors": [],
+  "execution_logs": [
+    "[Node 1] Classified Intent: BI_TEMPORAL_CHANGE (Confidence: 0.96)",
+    "[Node 2] Inputs validated successfully (2 images attached).",
+    "[Node 3] Read metadata for 2 images.",
+    "[Node 4] Dispatched CDChat for BI_TEMPORAL_CHANGE (latency=0.0013s, images=['img-295884777e', 'img-eb5c5bd4e8']).",
+    "[Node 5] Completed spatial analysis (Bi-Temporal Overlap Alignment).",
+    "[Node 6] Fused multi-source model evidence.",
+    "[Node 7] Generated final answer: New buildings appeared. Fusion decision: HIGH_CONFIDENCE_CHANGE."
+  ]
+}

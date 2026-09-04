@@ -1,0 +1,14 @@
+{
+  "trace_id": "trc-81ca6bf0c0f9",
+  "query": "What changed between these two images?",
+  "selected_task": "BI_TEMPORAL_CHANGE",
+  "models_dispatched": [
+    "MetadataReader",
+    "ChangeDetection",
+    "EvidenceFusion"
+  ],
+  "parameters": {},
+  "latency": 0.034,
+  "confidence": 0.96,
+  "timestamp": "2026-09-02T11:24:03.489984Z"
+}

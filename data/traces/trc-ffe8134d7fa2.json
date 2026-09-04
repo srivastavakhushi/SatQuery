@@ -1,0 +1,14 @@
+{
+  "trace_id": "trc-ffe8134d7fa2",
+  "query": "Describe the scene in detail",
+  "selected_task": "CAPTIONING",
+  "models_dispatched": [
+    "MetadataReader",
+    "Captioning",
+    "EvidenceFusion"
+  ],
+  "parameters": {},
+  "latency": 0.012,
+  "confidence": 0.89,
+  "timestamp": "2026-09-02T10:52:06.209435Z"
+}

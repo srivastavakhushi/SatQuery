@@ -1,0 +1,160 @@
+{
+  "trace_id": "trc-7e3f52596285",
+  "query": "What changed between these two images?",
+  "selected_task": "BI_TEMPORAL_CHANGE",
+  "models_dispatched": [
+    "MetadataReader",
+    "ChangeDetection",
+    "CDChat",
+    "EvidenceFusion"
+  ],
+  "parameters": {
+    "image_ids": [
+      "img-71e3674768",
+      "img-5a2e7035fb"
+    ],
+    "intent_explanation": "Matched exact change detection question pattern",
+    "selected_model": "CDChat",
+    "cdchat_latency": 0.0319
+  },
+  "latency": 1.329,
+  "confidence": 0.94,
+  "timestamp": "2026-09-02T19:29:29.409145Z",
+  "intent_confidence": 0.96,
+  "selected_model": "CDChat",
+  "image_ids": [
+    "img-71e3674768",
+    "img-5a2e7035fb"
+  ],
+  "cdchat_execution_time": 0.0319,
+  "cdchat_result": {
+    "answer": "CDChat identified bi-temporal changes between the two scenes, including new construction and vegetation loss.",
+    "model": "cdchat",
+    "confidence": 0.94,
+    "summary": "CDChat identified bi-temporal changes between the two scenes, including new construction and vegetation loss.",
+    "question": "What changed between these two images?",
+    "mocked": true,
+    "task": "bi_temporal_change_detection",
+    "elapsed_seconds": 0.0319,
+    "status": "success",
+    "image_ids": [
+      "img-71e3674768",
+      "img-5a2e7035fb"
+    ],
+    "resnet_backbone_features": {
+      "texture_variance": 0.78,
+      "edge_density": 0.65,
+      "spectral_similarity_score": 0.89
+    }
+  },
+  "fusion_result": {
+    "status": "success",
+    "decision": "HIGH_CONFIDENCE_CHANGE",
+    "fusion_confidence": 0.94,
+    "fused_evidence_count": 1,
+    "consolidated_evidence": [
+      "[ChangeDetection]: CDChat identified bi-temporal changes between the two scenes, including new construction and vegetation loss.",
+      "[cdchat]: Task: bi_temporal_change_detection (score=0.94)"
+    ],
+    "sih_evidence": [
+      {
+        "source": "cdchat",
+        "score": 0.94,
+        "description": "Task: bi_temporal_change_detection"
+      }
+    ],
+    "cdchat": {
+      "answer": "CDChat identified bi-temporal changes between the two scenes, including new construction and vegetation loss.",
+      "confidence": 0.94,
+      "model": "cdchat",
+      "elapsed_seconds": 0.0319,
+      "image_ids": [
+        "img-71e3674768",
+        "img-5a2e7035fb"
+      ]
+    },
+    "temporal_evidence": {
+      "image_count": 2,
+      "images": [
+        {
+          "image_id": "img-71e3674768",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-71e3674768_train_10070.jpg",
+          "raster_metadata": {
+            "filename": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-71e3674768_train_10070.jpg",
+            "width": 256,
+            "height": 256,
+            "band_count": 3,
+            "crs": "None",
+            "resolution": [
+              1.0,
+              1.0
+            ],
+            "bounds": {
+              "left": 0.0,
+              "bottom": 256.0,
+              "right": 256.0,
+              "top": 0.0
+            },
+            "dtype": "uint8",
+            "nodata": null
+          },
+          "width": 256,
+          "height": 256,
+          "band_count": 3,
+          "crs": "None"
+        },
+        {
+          "image_id": "img-5a2e7035fb",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-5a2e7035fb_train_10021.jpg",
+          "raster_metadata": {
+            "filename": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-5a2e7035fb_train_10021.jpg",
+            "width": 256,
+            "height": 256,
+            "band_count": 3,
+            "crs": "None",
+            "resolution": [
+              1.0,
+              1.0
+            ],
+            "bounds": {
+              "left": 0.0,
+              "bottom": 256.0,
+              "right": 256.0,
+              "top": 0.0
+            },
+            "dtype": "uint8",
+            "nodata": null
+          },
+          "width": 256,
+          "height": 256,
+          "band_count": 3,
+          "crs": "None"
+        }
+      ]
+    },
+    "spatial_evidence": {
+      "analysis_type": "Bi-Temporal Overlap Alignment",
+      "engine": "Sih/raster.alignment.check_alignment",
+      "status": "completed",
+      "shape": [
+        3,
+        256,
+        256
+      ],
+      "mean_pixel_difference": 0.47999638319015503,
+      "max_pixel_difference": 0.9391704797744751,
+      "coordinate_system": "None"
+    },
+    "metadata_relevance": "Sih fusion/evidence.fuse_evidence"
+  },
+  "errors": [],
+  "execution_logs": [
+    "[Node 1] Classified Intent: BI_TEMPORAL_CHANGE (Confidence: 0.96)",
+    "[Node 2] Inputs validated successfully (2 images attached).",
+    "[Node 3] Read metadata for 2 images.",
+    "[Node 4] Dispatched CDChat for BI_TEMPORAL_CHANGE (latency=0.0319s, images=['img-71e3674768', 'img-5a2e7035fb']).",
+    "[Node 5] Completed spatial analysis (Bi-Temporal Overlap Alignment).",
+    "[Node 6] Fused multi-source model evidence.",
+    "[Node 7] Generated final answer: CDChat identified bi-temporal changes between the two scenes, including new construction and vegetation loss. Fusion decision: HIGH_CONFIDENCE_CHANGE."
+  ]
+}

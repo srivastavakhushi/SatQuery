@@ -1,0 +1,121 @@
+{
+  "trace_id": "trc-7b95b2fb0661",
+  "query": "What changed between these two images?",
+  "selected_task": "BI_TEMPORAL_CHANGE",
+  "models_dispatched": [
+    "MetadataReader",
+    "ChangeDetection",
+    "CDChat",
+    "EvidenceFusion"
+  ],
+  "parameters": {
+    "image_ids": [
+      "img-a8d3012431",
+      "img-7d6dd36e04"
+    ],
+    "intent_explanation": "Matched exact change detection question pattern",
+    "selected_model": "CDChat",
+    "cdchat_latency": 0.0
+  },
+  "latency": 0.373,
+  "confidence": 0.93,
+  "timestamp": "2026-09-02T19:06:58.206238Z",
+  "intent_confidence": 0.96,
+  "selected_model": "CDChat",
+  "image_ids": [
+    "img-a8d3012431",
+    "img-7d6dd36e04"
+  ],
+  "cdchat_execution_time": 0.0,
+  "cdchat_result": {
+    "answer": "New rooftops appeared in the post-event image.",
+    "model": "cdchat",
+    "confidence": 0.93,
+    "status": "success",
+    "summary": "New rooftops appeared in the post-event image.",
+    "image_ids": [
+      "img-a8d3012431",
+      "img-7d6dd36e04"
+    ],
+    "resnet_backbone_features": {
+      "texture_variance": 0.78,
+      "edge_density": 0.65,
+      "spectral_similarity_score": 0.89
+    }
+  },
+  "fusion_result": {
+    "status": "success",
+    "fused_evidence_count": 1,
+    "consolidated_evidence": [
+      "[ChangeDetection]: New rooftops appeared in the post-event image."
+    ],
+    "fusion_confidence": 0.95,
+    "metadata_relevance": "High spatial-temporal overlap validated",
+    "cdchat": {
+      "answer": "New rooftops appeared in the post-event image.",
+      "confidence": 0.93,
+      "model": "cdchat",
+      "elapsed_seconds": null,
+      "image_ids": [
+        "img-a8d3012431",
+        "img-7d6dd36e04"
+      ]
+    },
+    "temporal_evidence": {
+      "image_count": 2,
+      "images": [
+        {
+          "image_id": "img-a8d3012431",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-a8d3012431_image1.png",
+          "preprocessing_status": "completed",
+          "preprocessing_method": "per-band-minmax",
+          "band_count": 4,
+          "width": 1,
+          "height": 1,
+          "crs": null,
+          "resolution": null,
+          "bounds": null,
+          "dtype": null,
+          "sensor_type": "Unknown"
+        },
+        {
+          "image_id": "img-7d6dd36e04",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-7d6dd36e04_image2.png",
+          "preprocessing_status": "completed",
+          "preprocessing_method": "per-band-minmax",
+          "band_count": 4,
+          "width": 1,
+          "height": 1,
+          "crs": null,
+          "resolution": null,
+          "bounds": null,
+          "dtype": null,
+          "sensor_type": "Unknown"
+        }
+      ]
+    },
+    "spatial_evidence": {
+      "analysis_type": "Bi-Temporal Overlap Alignment",
+      "engine": "Sih/raster.alignment.check_alignment",
+      "status": "completed",
+      "shape": [
+        4,
+        1,
+        1
+      ],
+      "mean_pixel_difference": 0.0,
+      "max_pixel_difference": 0.0,
+      "coordinate_system": "EPSG:4326"
+    }
+  },
+  "errors": [],
+  "execution_logs": [
+    "[Node 1] Classified Intent: BI_TEMPORAL_CHANGE (Confidence: 0.96)",
+    "[Node 2] Inputs validated successfully (2 images attached).",
+    "[Node 3] Read metadata for 2 images.",
+    "[Node 4] Dispatched CDChat for BI_TEMPORAL_CHANGE (latency=0.0s, images=['img-a8d3012431', 'img-7d6dd36e04']).",
+    "[Node 5] Completed spatial analysis (Bi-Temporal Overlap Alignment).",
+    "[Node 6] Fused multi-source model evidence.",
+    "[Node 7] Generated final answer: [ChangeDetection]: New rooftops appeared in the post-event image."
+  ]
+}

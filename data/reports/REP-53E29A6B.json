@@ -1,0 +1,29 @@
+{
+  "report_id": "REP-53E29A6B",
+  "title": "Custom Change Detection Summary Report",
+  "generated_at": "2026-09-02T18:57:43.884566+00:00",
+  "intent": "BI_TEMPORAL_CHANGE",
+  "summary": "Report generated for query: 'What changed between these two images?'",
+  "key_findings": [
+    "Audit Trace ID: trc-e540923b62d4",
+    "Query: What changed between these two images?",
+    "Latency: 0.009s",
+    "Confidence Score: 0.94"
+  ],
+  "evidence_details": {
+    "consolidated_evidence": [
+      "Audit Trace ID: trc-e540923b62d4",
+      "Query: What changed between these two images?",
+      "Latency: 0.009s",
+      "Confidence Score: 0.94"
+    ]
+  },
+  "models_used": [
+    "MetadataReader",
+    "ChangeDetection",
+    "CDChat",
+    "EvidenceFusion"
+  ],
+  "image_ids": [],
+  "trace_id": "trc-e540923b62d4"
+}

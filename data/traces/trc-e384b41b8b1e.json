@@ -1,0 +1,122 @@
+{
+  "trace_id": "trc-e384b41b8b1e",
+  "query": "Describe the scene in detail",
+  "selected_task": "CAPTIONING",
+  "models_dispatched": [
+    "MetadataReader",
+    "Captioning",
+    "EvidenceFusion"
+  ],
+  "parameters": {
+    "image_ids": [
+      "img-71e3674768",
+      "img-5a2e7035fb"
+    ],
+    "intent_explanation": "Matched image captioning pattern: '\\bdescribe\\b'",
+    "selected_model": "Captioning",
+    "cdchat_latency": 0.0
+  },
+  "latency": 0.013,
+  "confidence": 0.89,
+  "timestamp": "2026-09-02T19:31:49.176028Z",
+  "intent_confidence": 0.89,
+  "selected_model": "Captioning",
+  "image_ids": [
+    "img-71e3674768",
+    "img-5a2e7035fb"
+  ],
+  "cdchat_execution_time": 0.0,
+  "cdchat_result": null,
+  "fusion_result": {
+    "status": "success",
+    "decision": "HIGH_CONFIDENCE_CHANGE",
+    "fusion_confidence": 0.92,
+    "fused_evidence_count": 1,
+    "consolidated_evidence": [
+      "[RingMoGPT-RS]: Task: Captioning (score=0.92)"
+    ],
+    "sih_evidence": [
+      {
+        "source": "RingMoGPT-RS",
+        "score": 0.92,
+        "description": "Task: Captioning"
+      }
+    ],
+    "cdchat": null,
+    "temporal_evidence": {
+      "image_count": 2,
+      "images": [
+        {
+          "image_id": "img-71e3674768",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-71e3674768_train_10070.jpg",
+          "raster_metadata": {
+            "filename": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-71e3674768_train_10070.jpg",
+            "width": 256,
+            "height": 256,
+            "band_count": 3,
+            "crs": "None",
+            "resolution": [
+              1.0,
+              1.0
+            ],
+            "bounds": {
+              "left": 0.0,
+              "bottom": 256.0,
+              "right": 256.0,
+              "top": 0.0
+            },
+            "dtype": "uint8",
+            "nodata": null
+          },
+          "width": 256,
+          "height": 256,
+          "band_count": 3,
+          "crs": "None"
+        },
+        {
+          "image_id": "img-5a2e7035fb",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-5a2e7035fb_train_10021.jpg",
+          "raster_metadata": {
+            "filename": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-5a2e7035fb_train_10021.jpg",
+            "width": 256,
+            "height": 256,
+            "band_count": 3,
+            "crs": "None",
+            "resolution": [
+              1.0,
+              1.0
+            ],
+            "bounds": {
+              "left": 0.0,
+              "bottom": 256.0,
+              "right": 256.0,
+              "top": 0.0
+            },
+            "dtype": "uint8",
+            "nodata": null
+          },
+          "width": 256,
+          "height": 256,
+          "band_count": 3,
+          "crs": "None"
+        }
+      ]
+    },
+    "spatial_evidence": {
+      "spatial_overlap_percent": 98.4,
+      "coordinate_system": "EPSG:4326",
+      "analysis_type": "Single Scene Spatial Indexing"
+    },
+    "metadata_relevance": "Sih fusion/evidence.fuse_evidence"
+  },
+  "errors": [],
+  "execution_logs": [
+    "[Node 1] Classified Intent: CAPTIONING (Confidence: 0.89)",
+    "[Node 2] Inputs validated successfully (2 images attached).",
+    "[Node 3] Read metadata for 2 images.",
+    "[Node 4] Dispatched model/tool 'Captioning' successfully.",
+    "[Node 5] Completed spatial analysis (Single Scene Spatial Indexing).",
+    "[Node 6] Fused multi-source model evidence.",
+    "[Node 7] Generated final answer: High-resolution satellite view depicting coastal port facility with container ships, crane infrastructure, and adjacent warehousing."
+  ]
+}

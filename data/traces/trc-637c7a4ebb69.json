@@ -1,0 +1,75 @@
+{
+  "trace_id": "trc-637c7a4ebb69",
+  "query": "What is the building count in this satellite view?",
+  "selected_task": "VQA",
+  "models_dispatched": [
+    "MetadataReader",
+    "VQA",
+    "EvidenceFusion"
+  ],
+  "parameters": {
+    "image_ids": [
+      "img-f8a94ee5f4"
+    ],
+    "intent_explanation": "Matched visual question answering pattern: '\\bwhat\\b'",
+    "selected_model": "VQA",
+    "cdchat_latency": 0.0
+  },
+  "latency": 0.004,
+  "confidence": 0.85,
+  "timestamp": "2026-09-02T18:56:58.270751Z",
+  "intent_confidence": 0.85,
+  "selected_model": "VQA",
+  "image_ids": [
+    "img-f8a94ee5f4"
+  ],
+  "cdchat_execution_time": 0.0,
+  "cdchat_result": null,
+  "fusion_result": {
+    "status": "success",
+    "fused_evidence_count": 1,
+    "consolidated_evidence": [
+      "[VQA]: GeoChat analysis of img-f8a94ee5f4: The imagery shows a mixed industrial and commercial zone with active logistics transport."
+    ],
+    "fusion_confidence": 0.95,
+    "metadata_relevance": "High spatial-temporal overlap validated",
+    "cdchat": null,
+    "temporal_evidence": {
+      "image_count": 1,
+      "images": [
+        {
+          "image_id": "img-f8a94ee5f4",
+          "sensor_type": "Optical Multi-Spectral",
+          "acquisition_time": "2026-08-11T10:30:00Z",
+          "resolution_meters": 0.5,
+          "coordinates": {
+            "lat": 37.7749,
+            "lon": -122.4194,
+            "crs": "EPSG:4326"
+          }
+        }
+      ]
+    },
+    "spatial_evidence": {
+      "spatial_overlap_percent": 98.4,
+      "coordinate_system": "EPSG:4326",
+      "bounding_box_intersection": [
+        37.77,
+        -122.42,
+        37.78,
+        -122.41
+      ],
+      "analysis_type": "Single Scene Spatial Indexing"
+    }
+  },
+  "errors": [],
+  "execution_logs": [
+    "[Node 1] Classified Intent: VQA (Confidence: 0.85)",
+    "[Node 2] Inputs validated successfully (1 images attached).",
+    "[Node 3] Read metadata for 1 images.",
+    "[Node 4] Dispatched model/tool 'VQA' successfully.",
+    "[Node 5] Completed spatial analysis (Overlap: 98.4%).",
+    "[Node 6] Fused multi-source model evidence.",
+    "[Node 7] Generated final answer: [VQA]: GeoChat analysis of img-f8a94ee5f4: The imagery shows a mixed industrial and commercial zone with active logistics transport."
+  ]
+}

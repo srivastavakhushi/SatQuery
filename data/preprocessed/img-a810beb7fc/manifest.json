@@ -1,0 +1,8 @@
+{
+  "file_id": "img-a810beb7fc",
+  "source_path": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-a810beb7fc_image1.png",
+  "preprocessing_status": "skipped",
+  "preprocessing_method": "per-band-minmax",
+  "engine": "Sih/raster.preprocessing.normalize_band",
+  "preprocessing_error": "Image preprocessing failed."
+}

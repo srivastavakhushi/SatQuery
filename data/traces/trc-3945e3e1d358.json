@@ -1,0 +1,121 @@
+{
+  "trace_id": "trc-3945e3e1d358",
+  "query": "What changed between these two images?",
+  "selected_task": "BI_TEMPORAL_CHANGE",
+  "models_dispatched": [
+    "MetadataReader",
+    "ChangeDetection",
+    "CDChat",
+    "EvidenceFusion"
+  ],
+  "parameters": {
+    "image_ids": [
+      "img-6c9f69fb05",
+      "img-4eaab493ed"
+    ],
+    "intent_explanation": "Matched exact change detection question pattern",
+    "selected_model": "CDChat",
+    "cdchat_latency": 0.0
+  },
+  "latency": 0.019,
+  "confidence": 0.91,
+  "timestamp": "2026-09-02T19:21:30.867609Z",
+  "intent_confidence": 0.96,
+  "selected_model": "CDChat",
+  "image_ids": [
+    "img-6c9f69fb05",
+    "img-4eaab493ed"
+  ],
+  "cdchat_execution_time": 0.0,
+  "cdchat_result": {
+    "answer": "Buildings expanded along the river.",
+    "model": "cdchat",
+    "confidence": 0.91,
+    "status": "success",
+    "summary": "Buildings expanded along the river.",
+    "image_ids": [
+      "img-6c9f69fb05",
+      "img-4eaab493ed"
+    ],
+    "task": "bi_temporal_change_detection",
+    "resnet_backbone_features": {
+      "texture_variance": 0.78,
+      "edge_density": 0.65,
+      "spectral_similarity_score": 0.89
+    }
+  },
+  "fusion_result": {
+    "status": "success",
+    "decision": "HIGH_CONFIDENCE_CHANGE",
+    "fusion_confidence": 0.91,
+    "fused_evidence_count": 1,
+    "consolidated_evidence": [
+      "[ChangeDetection]: Buildings expanded along the river.",
+      "[cdchat]: Task: bi_temporal_change_detection (score=0.91)"
+    ],
+    "sih_evidence": [
+      {
+        "source": "cdchat",
+        "score": 0.91,
+        "description": "Task: bi_temporal_change_detection"
+      }
+    ],
+    "cdchat": {
+      "answer": "Buildings expanded along the river.",
+      "confidence": 0.91,
+      "model": "cdchat",
+      "elapsed_seconds": null,
+      "image_ids": [
+        "img-6c9f69fb05",
+        "img-4eaab493ed"
+      ]
+    },
+    "temporal_evidence": {
+      "image_count": 2,
+      "images": [
+        {
+          "image_id": "img-6c9f69fb05",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-6c9f69fb05_image1.png",
+          "raster_metadata": null,
+          "width": null,
+          "height": null,
+          "band_count": null,
+          "crs": null
+        },
+        {
+          "image_id": "img-4eaab493ed",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-4eaab493ed_image2.png",
+          "raster_metadata": null,
+          "width": null,
+          "height": null,
+          "band_count": null,
+          "crs": null
+        }
+      ]
+    },
+    "spatial_evidence": {
+      "analysis_type": "Bi-Temporal Overlap Alignment",
+      "engine": "Sih/raster.alignment.check_alignment",
+      "status": "completed",
+      "shape": [
+        4,
+        1,
+        1
+      ],
+      "mean_pixel_difference": 0.0,
+      "max_pixel_difference": 0.0,
+      "coordinate_system": "EPSG:4326"
+    },
+    "metadata_relevance": "Sih fusion/evidence.fuse_evidence"
+  },
+  "errors": [],
+  "execution_logs": [
+    "[Node 1] Classified Intent: BI_TEMPORAL_CHANGE (Confidence: 0.96)",
+    "[Node 2] Inputs validated successfully (2 images attached).",
+    "[Node 3] Read metadata for 2 images.",
+    "[Node 4] Dispatched CDChat for BI_TEMPORAL_CHANGE (latency=0.0s, images=['img-6c9f69fb05', 'img-4eaab493ed']).",
+    "[Node 5] Completed spatial analysis (Bi-Temporal Overlap Alignment).",
+    "[Node 6] Fused multi-source model evidence.",
+    "[Node 7] Generated final answer: Buildings expanded along the river. Fusion decision: HIGH_CONFIDENCE_CHANGE."
+  ]
+}

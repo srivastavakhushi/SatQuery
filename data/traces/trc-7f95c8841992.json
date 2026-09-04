@@ -1,0 +1,94 @@
+{
+  "trace_id": "trc-7f95c8841992",
+  "query": "Detect and locate all cargo ships in the harbor",
+  "selected_task": "GROUNDING",
+  "models_dispatched": [
+    "MetadataReader",
+    "Grounding",
+    "GeoChat",
+    "EvidenceFusion"
+  ],
+  "parameters": {
+    "image_ids": [
+      "img-4be011dacc"
+    ],
+    "intent_explanation": "Matched visual grounding pattern: '\\blocates?\\b'",
+    "selected_model": "GeoChat",
+    "cdchat_latency": 0.0
+  },
+  "latency": 0.031,
+  "confidence": 0.9,
+  "timestamp": "2026-09-02T20:22:26.970002Z",
+  "intent_confidence": 0.9,
+  "selected_model": "GeoChat",
+  "image_ids": [
+    "img-4be011dacc"
+  ],
+  "cdchat_execution_time": 0.0,
+  "cdchat_result": null,
+  "fusion_result": {
+    "status": "success",
+    "decision": "HIGH_CONFIDENCE_CHANGE",
+    "fusion_confidence": 0.9,
+    "fused_evidence_count": 1,
+    "consolidated_evidence": [
+      "[geochat]: Task: grounding (score=0.9)"
+    ],
+    "sih_evidence": [
+      {
+        "source": "geochat",
+        "score": 0.9,
+        "description": "Task: grounding"
+      }
+    ],
+    "cdchat": null,
+    "temporal_evidence": {
+      "image_count": 1,
+      "images": [
+        {
+          "image_id": "img-4be011dacc",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-4be011dacc_image1.png",
+          "raster_metadata": {
+            "filename": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-4be011dacc_image1.png",
+            "width": 1,
+            "height": 1,
+            "band_count": 4,
+            "crs": "None",
+            "resolution": [
+              1.0,
+              1.0
+            ],
+            "bounds": {
+              "left": 0.0,
+              "bottom": 1.0,
+              "right": 1.0,
+              "top": 0.0
+            },
+            "dtype": "uint8",
+            "nodata": null
+          },
+          "width": 1,
+          "height": 1,
+          "band_count": 4,
+          "crs": "None"
+        }
+      ]
+    },
+    "spatial_evidence": {
+      "spatial_overlap_percent": 98.4,
+      "coordinate_system": "EPSG:4326",
+      "analysis_type": "Single Scene Spatial Indexing"
+    },
+    "metadata_relevance": "Sih fusion/evidence.fuse_evidence"
+  },
+  "errors": [],
+  "execution_logs": [
+    "[Node 1] Classified Intent: GROUNDING (Confidence: 0.9)",
+    "[Node 2] Inputs validated successfully (1 images attached).",
+    "[Node 3] Read metadata for 1 images.",
+    "[Node 4] Dispatched model/tool 'Grounding' (GeoChat) successfully.",
+    "[Node 5] Completed spatial analysis (Single Scene Spatial Indexing).",
+    "[Node 6] Fused multi-source model evidence.",
+    "[Node 7] Generated final answer: Ships are at {<10><20><30><40>}"
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "trace_id": "trc-a8ba322f9203",
+  "query": "What changed between these two images?",
+  "selected_task": "BI_TEMPORAL_CHANGE",
+  "models_dispatched": [
+    "MetadataReader",
+    "ChangeDetection",
+    "CDChat",
+    "EvidenceFusion"
+  ],
+  "parameters": {
+    "image_ids": [
+      "img-65ad7dd948",
+      "img-84dbf40282"
+    ],
+    "intent_explanation": "Matched exact change detection question pattern",
+    "selected_model": "CDChat",
+    "cdchat_latency": 0.0
+  },
+  "latency": 0.004,
+  "confidence": 0.93,
+  "timestamp": "2026-09-02T18:56:58.255945Z",
+  "intent_confidence": 0.96,
+  "selected_model": "CDChat",
+  "image_ids": [
+    "img-65ad7dd948",
+    "img-84dbf40282"
+  ],
+  "cdchat_execution_time": 0.0,
+  "cdchat_result": {
+    "answer": "New rooftops appeared in the post-event image.",
+    "model": "cdchat",
+    "confidence": 0.93,
+    "status": "success",
+    "summary": "New rooftops appeared in the post-event image.",
+    "image_ids": [
+      "img-65ad7dd948",
+      "img-84dbf40282"
+    ],
+    "resnet_backbone_features": {
+      "texture_variance": 0.78,
+      "edge_density": 0.65,
+      "spectral_similarity_score": 0.89
+    }
+  },
+  "fusion_result": {
+    "status": "success",
+    "fused_evidence_count": 1,
+    "consolidated_evidence": [
+      "[ChangeDetection]: New rooftops appeared in the post-event image."
+    ],
+    "fusion_confidence": 0.95,
+    "metadata_relevance": "High spatial-temporal overlap validated",
+    "cdchat": {
+      "answer": "New rooftops appeared in the post-event image.",
+      "confidence": 0.93,
+      "model": "cdchat",
+      "elapsed_seconds": null,
+      "image_ids": [
+        "img-65ad7dd948",
+        "img-84dbf40282"
+      ]
+    },
+    "temporal_evidence": {
+      "image_count": 2,
+      "images": [
+        {
+          "image_id": "img-65ad7dd948",
+          "sensor_type": "Optical Multi-Spectral",
+          "acquisition_time": "2026-08-11T10:30:00Z",
+          "resolution_meters": 0.5,
+          "coordinates": {
+            "lat": 37.7749,
+            "lon": -122.4194,
+            "crs": "EPSG:4326"
+          }
+        },
+        {
+          "image_id": "img-84dbf40282",
+          "sensor_type": "SAR Band-C",
+          "acquisition_time": "2026-08-12T10:30:00Z",
+          "resolution_meters": 0.5,
+          "coordinates": {
+            "lat": 37.7749,
+            "lon": -122.4194,
+            "crs": "EPSG:4326"
+          }
+        }
+      ]
+    },
+    "spatial_evidence": {
+      "spatial_overlap_percent": 98.4,
+      "coordinate_system": "EPSG:4326",
+      "bounding_box_intersection": [
+        37.77,
+        -122.42,
+        37.78,
+        -122.41
+      ],
+      "analysis_type": "Bi-Temporal Overlap Alignment"
+    }
+  },
+  "errors": [],
+  "execution_logs": [
+    "[Node 1] Classified Intent: BI_TEMPORAL_CHANGE (Confidence: 0.96)",
+    "[Node 2] Inputs validated successfully (2 images attached).",
+    "[Node 3] Read metadata for 2 images.",
+    "[Node 4] Dispatched CDChat for BI_TEMPORAL_CHANGE (latency=0.0s, images=['img-65ad7dd948', 'img-84dbf40282']).",
+    "[Node 5] Completed spatial analysis (Overlap: 98.4%).",
+    "[Node 6] Fused multi-source model evidence.",
+    "[Node 7] Generated final answer: [ChangeDetection]: New rooftops appeared in the post-event image."
+  ]
+}

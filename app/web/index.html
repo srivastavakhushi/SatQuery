@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Geospatial AI Gateway</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a222c;
+      --line: #2c3846;
+      --text: #e8eef4;
+      --muted: #93a4b7;
+      --accent: #3d9cf0;
+      --ok: #3ecf8e;
+      --err: #f07178;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--line);
+    }
+    header h1 { margin: 0 0 6px; font-size: 22px; }
+    header p { margin: 0; color: var(--muted); }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px;
+      display: grid;
+      gap: 18px;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+    h2 { margin: 0 0 14px; font-size: 16px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    input[type="file"], input[type="text"], textarea, select {
+      width: 100%;
+      background: #10171e;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+    }
+    textarea { min-height: 88px; resize: vertical; }
+    button {
+      background: var(--accent);
+      color: #041018;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.secondary { background: #2c3846; color: var(--text); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+    .chip {
+      background: #10171e;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    pre {
+      background: #10171e;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      overflow: auto;
+      white-space: pre-wrap;
+      font-size: 13px;
+    }
+    .status { margin-top: 10px; color: var(--muted); font-size: 14px; }
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--err); }
+    label { display: block; margin: 8px 0 6px; color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Multi-Modal Geospatial AI Gateway</h1>
+    <p>Upload images, ask a question, then generate a report. API docs remain at <a href="/docs" style="color:#7ec2ff">/docs</a>.</p>
+  </header>
+  <main>
+    <section>
+      <h2>1. Upload images</h2>
+      <label for="file-input">Choose JPEG, PNG, TIFF, or SAR files</label>
+      <input id="file-input" type="file" multiple accept=".jpg,.jpeg,.png,.tif,.tiff,.slc,.grd,.h5,.hdf5,.ntf,.nitf,.img,.safe" />
+      <div class="row" style="margin-top:12px">
+        <button id="upload-btn" type="button">Upload files</button>
+      </div>
+      <div id="upload-status" class="status"></div>
+      <pre id="upload-result">No files uploaded yet.</pre>
+    </section>
+
+    <section>
+      <h2>2. Ask a question</h2>
+      <div class="chips">
+        <span class="chip" data-q="What changed between these two images?">Change detection</span>
+        <span class="chip" data-q="Describe the scene in detail">Caption</span>
+        <span class="chip" data-q="What is the building count in this satellite view?">VQA</span>
+        <span class="chip" data-q="Detect and locate all cargo ships in the harbor">Grounding</span>
+        <span class="chip" data-q="Process synthetic aperture radar SAR image for cloud penetration">Optical-SAR</span>
+      </div>
+      <label for="query-text">Prompt</label>
+      <textarea id="query-text">What changed between these two images?</textarea>
+      <label for="image-ids">Image IDs (filled in after upload)</label>
+      <input id="image-ids" type="text" placeholder="img-..., img-..." />
+      <div class="row" style="margin-top:12px">
+        <button id="query-btn" type="button">Run query</button>
+      </div>
+      <div id="query-status" class="status"></div>
+      <pre id="query-result">Run a query to see the answer and trace ID.</pre>
+    </section>
+
+    <section>
+      <h2>3. Generate report</h2>
+      <label for="trace-id">Trace ID</label>
+      <input id="trace-id" type="text" placeholder="trc-..." />
+      <label for="report-format">Format</label>
+      <select id="report-format">
+        <option value="markdown">markdown</option>
+        <option value="json">json</option>
+        <option value="pdf">pdf</option>
+      </select>
+      <div class="row" style="margin-top:12px">
+        <button id="report-btn" type="button">Generate report</button>
+      </div>
+      <div id="report-status" class="status"></div>
+      <pre id="report-result">Generate a report after a query.</pre>
+    </section>
+  </main>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let lastFileIds = [];
+
+    document.querySelectorAll(".chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        $("query-text").value = chip.dataset.q;
+      });
+    });
+
+    $("upload-btn").addEventListener("click", async () => {
+      const files = $("file-input").files;
+      if (!files.length) {
+        $("upload-status").className = "status err";
+        $("upload-status").textContent = "Choose at least one image first.";
+        return;
+      }
+      const body = new FormData();
+      for (const file of files) body.append("files", file);
+      $("upload-btn").disabled = true;
+      $("upload-status").className = "status";
+      $("upload-status").textContent = "Uploading...";
+      try {
+        const res = await fetch("/api/v1/upload", { method: "POST", body });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || JSON.stringify(data));
+        lastFileIds = (data.files || []).map((f) => f.file_id);
+        $("image-ids").value = lastFileIds.join(", ");
+        $("upload-status").className = "status ok";
+        $("upload-status").textContent = data.message;
+        $("upload-result").textContent = JSON.stringify(data.files, null, 2);
+      } catch (err) {
+        $("upload-status").className = "status err";
+        $("upload-status").textContent = String(err.message || err);
+      } finally {
+        $("upload-btn").disabled = false;
+      }
+    });
+
+    $("query-btn").addEventListener("click", async () => {
+      const query = $("query-text").value.trim();
+      const imageIds = $("image-ids").value.split(",").map((s) => s.trim()).filter(Boolean);
+      if (!query) {
+        $("query-status").className = "status err";
+        $("query-status").textContent = "Enter a question.";
+        return;
+      }
+      $("query-btn").disabled = true;
+      $("query-status").className = "status";
+      $("query-status").textContent = "Running agent...";
+      try {
+        const res = await fetch("/api/v1/query", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, image_ids: imageIds, parameters: {} }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || JSON.stringify(data));
+        $("trace-id").value = data.execution_trace?.trace_id || "";
+        $("query-status").className = "status ok";
+        $("query-status").textContent = `Intent: ${data.intent}  ·  confidence ${data.confidence}`;
+        $("query-result").textContent =
+          `Answer:\n${data.answer}\n\nTrace ID: ${data.execution_trace?.trace_id}\nModels: ${(data.models_dispatched || []).join(", ")}`;
+      } catch (err) {
+        $("query-status").className = "status err";
+        $("query-status").textContent = String(err.message || err);
+      } finally {
+        $("query-btn").disabled = false;
+      }
+    });
+
+    $("report-btn").addEventListener("click", async () => {
+      const traceId = $("trace-id").value.trim();
+      if (!traceId) {
+        $("report-status").className = "status err";
+        $("report-status").textContent = "Run a query first, or paste a trace ID.";
+        return;
+      }
+      $("report-btn").disabled = true;
+      $("report-status").className = "status";
+      $("report-status").textContent = "Generating report...";
+      try {
+        const res = await fetch("/api/v1/report", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            trace_id: traceId,
+            title: "Geospatial Intelligence Report",
+            format: $("report-format").value,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || JSON.stringify(data));
+        $("report-status").className = "status ok";
+        $("report-status").textContent = `Saved as ${data.report_id}`;
+        $("report-result").textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        $("report-status").className = "status err";
+        $("report-status").textContent = String(err.message || err);
+      } finally {
+        $("report-btn").disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

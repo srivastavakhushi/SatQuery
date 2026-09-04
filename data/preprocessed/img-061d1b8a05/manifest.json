@@ -1,0 +1,16 @@
+{
+  "file_id": "img-061d1b8a05",
+  "source_path": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-061d1b8a05_image2.png",
+  "preprocessing_status": "completed",
+  "preprocessing_method": "per-band-minmax",
+  "engine": "Sih/raster.preprocessing.normalize_band",
+  "reader": "pillow",
+  "band_count": 4,
+  "height": 1,
+  "width": 1,
+  "normalized_min": 0.0,
+  "normalized_max": 0.0,
+  "rgb_path": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\preprocessed\\img-061d1b8a05\\rgb.png",
+  "normalized_path": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\preprocessed\\img-061d1b8a05\\bands_normalized.npy",
+  "raster_metadata": null
+}
