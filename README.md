@@ -18,7 +18,7 @@ This gateway does **not** load large model weights. Inference happens at configu
    - Routes to `VQA`, `CAPTIONING`, `GROUNDING`, `BI_TEMPORAL_CHANGE`, or `OPTICAL_SAR`.
 
 3. **LangGraph Agent**
-   - `Query` → classify → validate images → metadata → model dispatch → spatial analysis → Sih fusion → answer
+   - `Query` → classify → validate images → metadata → model dispatch → spatial analysis → Rasterio fusion → answer
 
 4. **Remote model adapters**
    - **GeoChat**: VQA, captioning, grounding (via `GEOCHAT_URL`)
@@ -37,8 +37,6 @@ This gateway does **not** load large model weights. Inference happens at configu
 | `GROUNDING` | `Grounding` | GeoChat grounding |
 | `BI_TEMPORAL_CHANGE` | `ChangeDetection` | CDChat |
 | `OPTICAL_SAR` | `OpticalSAR` | Popeye |
-
-Qwen, YOLO, and RingMoGPT are **not** on live routes.
 
 ResNet-50 is **not** invoked by ChangeDetection or `/query`. Use `POST /api/v1/models/resnet/features` only when you explicitly need features.
 
@@ -62,7 +60,7 @@ GeoChat and Popeye have **no official public HTTP API**. `GEOCHAT_URL` / `POPEYE
 
 ## Local vs remote
 
-**Stays on this backend:** FastAPI, classifier, LangGraph, upload storage, Sih raster/preprocessing/fusion/reporting, thin HTTP adapters.
+**Stays on this backend:** FastAPI, classifier, LangGraph, upload storage, raster/preprocessing/fusion/reporting, thin HTTP adapters.
 
 **Runs on a GPU host:** GeoChat, CDChat, Popeye, and (if used) ResNet-50 checkpoints. This repo does not contain `.pt` / `.pth` / `.safetensors` weights.
 
@@ -125,7 +123,7 @@ POST /api/v1/upload
 
 POST /api/v1/query
   → classifier
-  → BI_TEMPORAL_CHANGE: Sih load/validate/normalize → RGB → CDCHAT_URL → Sih fusion
+  → BI_TEMPORAL_CHANGE: Rasterio load/validate/normalize → RGB → CDCHAT_URL → Rasterio fusion
   → VQA / caption / grounding: storage → RGB → GEOCHAT_URL
   → OPTICAL_SAR: storage → RGB pair → POPEYE_URL
 ```
