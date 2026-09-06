@@ -25,9 +25,13 @@ class FakeResponse:
 
 
 def upload_images(count: int = 2, suffix: str = "png") -> List[str]:
+    return upload_named_images([f"image{i}.{suffix}" for i in range(1, count + 1)])
+
+
+def upload_named_images(filenames: List[str]) -> List[str]:
     files = [
-        ("files", (f"image{i}.{suffix}", io.BytesIO(MINI_PNG), "image/png"))
-        for i in range(1, count + 1)
+        ("files", (name, io.BytesIO(MINI_PNG), "image/png"))
+        for name in filenames
     ]
     response = client.post("/api/v1/upload", files=files)
     assert response.status_code == 201
@@ -38,7 +42,7 @@ def disable_model_mocks(monkeypatch) -> None:
     from app.config import settings
 
     monkeypatch.setattr(settings, "MODEL_MOCK_MODE", False)
-    monkeypatch.setattr(settings, "GEOCHAT_MOCK", False)
+    monkeypatch.setattr(settings, "LLAVA_MOCK", False)
     monkeypatch.setattr(settings, "CDCHAT_MOCK", False)
     monkeypatch.setattr(settings, "POPEYE_MOCK", False)
     monkeypatch.setattr(settings, "RESNET_MOCK", False)
@@ -62,11 +66,17 @@ def install_fake_httpx(
         def __exit__(self, *args):
             return False
 
-        def post(self, url, json=None):
-            posts.append({"url": url, "json": json})
-            return _resolve(post, url, json)
+        def post(self, url, json=None, files=None, data=None, headers=None):
+            posts.append({
+                "url": url,
+                "json": json,
+                "files": files,
+                "data": data,
+                "headers": headers,
+            })
+            return _resolve(post, url, json if json is not None else data)
 
-        def get(self, url):
+        def get(self, url, headers=None):
             gets.append(url)
             return _resolve(get, url, None)
 

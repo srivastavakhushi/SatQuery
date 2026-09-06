@@ -6,7 +6,7 @@ from tests.conftest import client, upload_images
 def test_upload_does_not_run_sih_or_cdchat():
     with patch("app.sih_raster.preprocess_temporal_pair") as mock_preprocess:
         with patch("app.tools.models.cd_chat.cdchat_adapter.run_cdchat") as mock_cdchat:
-            with patch("app.agent.adapters.geochat_adapter.run_geochat_vqa") as mock_geochat:
+            with patch("app.agent.adapters.llava_adapter.run_llava_vqa") as mock_geochat:
                 with patch("app.agent.adapters.resnet_adapter.run_resnet_features") as mock_resnet:
                     image_ids = upload_images(2)
     assert len(image_ids) == 2

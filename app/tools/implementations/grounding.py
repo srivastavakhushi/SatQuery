@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 
 from app.tools.base import BaseTool
-from app.tools.models import geochat_model
+from app.tools.models import llava_model
 
 
 class GroundingTool(BaseTool):
@@ -11,7 +11,7 @@ class GroundingTool(BaseTool):
 
     @property
     def description(self) -> str:
-        return "Visual Grounding and Localization Tool powered by GeoChat."
+        return "Visual Grounding and Localization Tool powered by GeoLLaVA."
 
     @property
     def required_inputs(self) -> List[str]:
@@ -20,4 +20,4 @@ class GroundingTool(BaseTool):
     def execute(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         query = payload.get("query", "")
         image_ids = payload.get("image_ids", [])
-        return geochat_model.ground_target(image_ids, query)
+        return llava_model.ground_target(image_ids, query)

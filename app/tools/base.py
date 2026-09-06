@@ -4,7 +4,7 @@ from typing import Dict, Any, List
 class BaseTool(ABC):
     """
     Abstract Base Class for all tools registered in the Tool Registry.
-    Each tool wraps an underlying model adapter (e.g. CD Chat, GeoChat, Popeye, ResNet)
+    Each tool wraps an underlying model adapter (e.g. CD Chat, GeoLLaVA, Popeye, ResNet)
     or utility pipeline and exposes a unified execute interface.
     """
 

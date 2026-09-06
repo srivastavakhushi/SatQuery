@@ -1,11 +1,8 @@
 """
-GeoChat adapter.
+LLaVA adapter.
 
-GeoChat's official interface is a local CLI/eval pipeline (PIL RGB, CLIP 504px,
-LLaVA-style prompts, text answers). There is no official hosted HTTP API.
-
-This module talks to a user-provided GPU wrapper at GEOCHAT_URL using OUR
-HTTP contract. The wrapper is responsible for running the real GeoChat model.
+Talks to a remote GeoLLaVA VQA service at LLAVA_URL. The live wrapper exposes
+GET /health and POST /vqa as multipart form fields: file (.npy) + question.
 """
 
 from __future__ import annotations
@@ -14,7 +11,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 from app.agent.adapters import remote
-from app.agent.adapters.images import image_id_to_base64_png
+from app.agent.adapters.images import image_id_to_npy_bytes
 from app.config import settings
 from app.exceptions import MissingImageIdError, ModelInferenceError
 
@@ -26,32 +23,26 @@ _LIST_BOX = re.compile(
 )
 
 
-def run_geochat_vqa(image_id: str, question: str) -> Dict[str, Any]:
-    _require_image_id(image_id, "GeoChat VQA")
-    image_b64 = image_id_to_base64_png(image_id)
-    if remote.is_mock_enabled("geochat"):
+def run_llava_vqa(image_id: str, question: str) -> Dict[str, Any]:
+    _require_image_id(image_id, "GeoLLaVA VQA")
+    if remote.is_mock_enabled("llava"):
         return {
-            "answer": f"GeoChat mock VQA answer for: {question}",
-            "model": "geochat",
+            "answer": f"GeoLLaVA mock VQA answer for: {question}",
+            "model": "llava",
             "confidence": 0.5,
             "image_id": image_id,
             "task": "vqa",
             "mock": True,
         }
 
-    payload = {
-        "task": "vqa",
-        "image": image_b64,
-        "question": question,
-        "encoding": "base64",
-    }
-    data = remote.post_inference("geochat", settings.GEOCHAT_VQA_PATH, payload)
-    answer = _first_text(data, "answer", "text", "output")
+    npy_bytes = image_id_to_npy_bytes(image_id)
+    data = _post_vqa(npy_bytes, question)
+    answer = _first_text(data, "answer", "text", "output", "response")
     if not answer:
-        raise ModelInferenceError("GeoChat returned an unexpected payload.")
+        raise ModelInferenceError("GeoLLaVA returned an unexpected payload.")
     return {
         "answer": answer,
-        "model": data.get("model", "geochat"),
+        "model": data.get("model", "llava"),
         "confidence": data.get("confidence", 0.9),
         "image_id": image_id,
         "task": "vqa",
@@ -60,16 +51,15 @@ def run_geochat_vqa(image_id: str, question: str) -> Dict[str, Any]:
     }
 
 
-def run_geochat_caption(image_id: str, prompt: Optional[str] = None) -> Dict[str, Any]:
-    _require_image_id(image_id, "GeoChat captioning")
+def run_llava_caption(image_id: str, prompt: Optional[str] = None) -> Dict[str, Any]:
+    _require_image_id(image_id, "GeoLLaVA captioning")
     caption_prompt = prompt or "Describe this remote-sensing scene."
-    image_b64 = image_id_to_base64_png(image_id)
-    if remote.is_mock_enabled("geochat"):
-        caption = f"GeoChat mock caption for image {image_id}."
+    if remote.is_mock_enabled("llava"):
+        caption = f"GeoLLaVA mock caption for image {image_id}."
         return {
             "caption": caption,
             "answer": caption,
-            "model": "geochat",
+            "model": "llava",
             "confidence": 0.5,
             "image_id": image_id,
             "prompt": caption_prompt,
@@ -77,21 +67,15 @@ def run_geochat_caption(image_id: str, prompt: Optional[str] = None) -> Dict[str
             "mock": True,
         }
 
-    payload = {
-        "task": "caption",
-        "image": image_b64,
-        "prompt": caption_prompt,
-        "question": caption_prompt,
-        "encoding": "base64",
-    }
-    data = remote.post_inference("geochat", settings.GEOCHAT_CAPTION_PATH, payload)
-    caption = _first_text(data, "caption", "answer", "text", "output")
+    npy_bytes = image_id_to_npy_bytes(image_id)
+    data = _post_vqa(npy_bytes, caption_prompt)
+    caption = _first_text(data, "caption", "answer", "text", "output", "response")
     if not caption:
-        raise ModelInferenceError("GeoChat returned an unexpected payload.")
+        raise ModelInferenceError("GeoLLaVA returned an unexpected payload.")
     return {
         "caption": caption,
         "answer": caption,
-        "model": data.get("model", "geochat"),
+        "model": data.get("model", "llava"),
         "confidence": data.get("confidence", 0.9),
         "image_id": image_id,
         "prompt": caption_prompt,
@@ -101,15 +85,14 @@ def run_geochat_caption(image_id: str, prompt: Optional[str] = None) -> Dict[str
     }
 
 
-def run_geochat_grounding(image_id: str, query: str) -> Dict[str, Any]:
-    _require_image_id(image_id, "GeoChat grounding")
-    image_b64 = image_id_to_base64_png(image_id)
-    if remote.is_mock_enabled("geochat"):
+def run_llava_grounding(image_id: str, query: str) -> Dict[str, Any]:
+    _require_image_id(image_id, "GeoLLaVA grounding")
+    if remote.is_mock_enabled("llava"):
         return {
             "objects": [],
-            "answer": f"GeoChat mock grounding for: {query}",
-            "summary": f"GeoChat mock grounding for: {query}",
-            "model": "geochat",
+            "answer": f"GeoLLaVA mock grounding for: {query}",
+            "summary": f"GeoLLaVA mock grounding for: {query}",
+            "model": "llava",
             "confidence": 0.5,
             "image_id": image_id,
             "query": query,
@@ -117,26 +100,20 @@ def run_geochat_grounding(image_id: str, query: str) -> Dict[str, Any]:
             "mock": True,
         }
 
-    payload = {
-        "task": "grounding",
-        "image": image_b64,
-        "query": query,
-        "question": query,
-        "encoding": "base64",
-    }
-    data = remote.post_inference("geochat", settings.GEOCHAT_GROUNDING_PATH, payload)
-    answer = _first_text(data, "answer", "text", "output", "caption") or ""
+    npy_bytes = image_id_to_npy_bytes(image_id)
+    data = _post_vqa(npy_bytes, query)
+    answer = _first_text(data, "answer", "text", "output", "caption", "response") or ""
     objects = extract_grounding_objects(data, query)
     summary = answer or (
-        f"GeoChat grounded {len(objects)} object(s)."
+        f"GeoLLaVA grounded {len(objects)} object(s)."
         if objects
-        else "GeoChat returned a grounding response without extractable coordinates."
+        else "GeoLLaVA returned a grounding response without extractable coordinates."
     )
     result: Dict[str, Any] = {
         "objects": objects,
         "answer": answer or summary,
         "summary": summary,
-        "model": data.get("model", "geochat"),
+        "model": data.get("model", "llava"),
         "image_id": image_id,
         "query": query,
         "task": "grounding",
@@ -170,7 +147,7 @@ def extract_grounding_objects(payload: Dict[str, Any], query: str) -> List[Dict[
         if objects:
             return objects
 
-    text = _first_text(payload, "answer", "text", "output", "caption") or ""
+    text = _first_text(payload, "answer", "text", "output", "caption", "response") or ""
     for match in _ANGLE_BOX.finditer(text):
         objects.append(
             {
@@ -188,6 +165,12 @@ def extract_grounding_objects(payload: Dict[str, Any], query: str) -> List[Dict[
             }
         )
     return objects
+
+
+def _post_vqa(npy_bytes: bytes, question: str) -> Dict[str, Any]:
+    files = {"file": ("image.npy", npy_bytes, "application/octet-stream")}
+    form = {"question": question}
+    return remote.post_multipart("llava", settings.LLAVA_VQA_PATH, files=files, data=form)
 
 
 def _normalize_object(item: Any, query: str) -> Optional[Dict[str, Any]]:

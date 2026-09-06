@@ -49,7 +49,7 @@ async def generate_report(request: ReportRequest):
     else:
         final_answer = "Multi-modal analysis report."
         intent = "SESSION_REPORT"
-        models_used = ["GeoChat", "CD Chat", "RingMoGPT"]
+        models_used = ["GeoLLaVA", "CD Chat", "RingMoGPT"]
 
     report_payload = {
         "intent": intent,

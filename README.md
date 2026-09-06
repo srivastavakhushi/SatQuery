@@ -1,6 +1,6 @@
 # Multi-Modal Geospatial AI Backend Gateway
 
-A modular FastAPI backend featuring an Intent Classifier, LangGraph Agent State Machine & Task Planner, Extensible Tool Registry with remote model adapters (GeoChat, CDChat, Popeye, ResNet-50), raster/fusion, and audit-grade execution traces.
+A modular FastAPI backend featuring an Intent Classifier, LangGraph Agent State Machine & Task Planner, Extensible Tool Registry with remote model adapters (GeoLLaVA, CDChat, Popeye, ResNet-50), Sih raster/fusion, and audit-grade execution traces.
 
 This gateway does **not** load large model weights. Inference happens at configured remote HTTP endpoints.
 
@@ -18,12 +18,12 @@ This gateway does **not** load large model weights. Inference happens at configu
    - Routes to `VQA`, `CAPTIONING`, `GROUNDING`, `BI_TEMPORAL_CHANGE`, or `OPTICAL_SAR`.
 
 3. **LangGraph Agent**
-   - `Query` → classify → validate images → metadata → model dispatch → spatial analysis → Rasterio fusion → answer
+   - `Query` → classify → validate images → metadata → model dispatch → spatial analysis → Sih fusion → answer
 
 4. **Remote model adapters**
-   - **GeoChat**: VQA, captioning, grounding (via `GEOCHAT_URL`)
+   - **GeoLLaVA**: VQA, captioning, grounding (via `LLAVA_URL`). Sends a `.npy` array as multipart `file`.
    - **CDChat**: bi-temporal change description (via `CDCHAT_URL`)
-   - **Popeye**: optical + SAR understanding (via `POPEYE_URL`)
+   - **Popeye**: optical + SAR understanding (via `POPEYE_URL`). Sends RGB PNGs as multipart `optical_image` + `sar_image`.
    - **ResNet-50**: supporting features/domain service only (`RESNET_URL`). Not used on query routes.
 
 ---
@@ -32,11 +32,13 @@ This gateway does **not** load large model weights. Inference happens at configu
 
 | Intent | Tool | Remote model |
 | --- | --- | --- |
-| `VQA` | `VQA` | GeoChat VQA |
-| `CAPTIONING` | `Captioning` | GeoChat caption |
-| `GROUNDING` | `Grounding` | GeoChat grounding |
+| `VQA` | `VQA` | GeoLLaVA VQA |
+| `CAPTIONING` | `Captioning` | GeoLLaVA caption |
+| `GROUNDING` | `Grounding` | GeoLLaVA grounding |
 | `BI_TEMPORAL_CHANGE` | `ChangeDetection` | CDChat |
 | `OPTICAL_SAR` | `OpticalSAR` | Popeye |
+
+Qwen, YOLO, and RingMoGPT are **not** on live routes.
 
 ResNet-50 is **not** invoked by ChangeDetection or `/query`. Use `POST /api/v1/models/resnet/features` only when you explicitly need features.
 
@@ -54,15 +56,15 @@ Default: `MODEL_MOCK_MODE=false`.
 
 `localhost` URLs mean that model is running on this PC (weights would be local to that process). Point URLs at a GPU host to keep weights off this machine.
 
-GeoChat and Popeye have **no official public HTTP API**. `GEOCHAT_URL` / `POPEYE_URL` are contracts for a self-hosted GPU wrapper that runs the actual model.
+Popeye is reached at `POPEYE_URL` (`POST /analyze` with multipart `query` + `optical_image` + `sar_image`). GeoLLaVA is reached at `LLAVA_URL` (`POST /vqa` with multipart `.npy` + question).
 
 ---
 
 ## Local vs remote
 
-**Stays on this backend:** FastAPI, classifier, LangGraph, upload storage, raster/preprocessing/fusion/reporting, thin HTTP adapters.
+**Stays on this backend:** FastAPI, classifier, LangGraph, upload storage, Sih raster/preprocessing/fusion/reporting, thin HTTP adapters.
 
-**Runs on a GPU host:** GeoChat, CDChat, Popeye, and (if used) ResNet-50 checkpoints. This repo does not contain `.pt` / `.pth` / `.safetensors` weights.
+**Runs on a GPU host:** GeoLLaVA, CDChat, Popeye, and (if used) ResNet-50 checkpoints. This repo does not contain `.pt` / `.pth` / `.safetensors` weights.
 
 CDChat wrapper (already in `services/cdchat/`):
 
@@ -79,12 +81,12 @@ Then set `CDCHAT_URL` to that host (not this laptop, unless the GPU is here).
 Copy `.env.example` to `.env`. Placeholders only:
 
 ```
-GEOCHAT_URL=
+LLAVA_URL=
 CDCHAT_URL=
 POPEYE_URL=
 RESNET_URL=
 MODEL_MOCK_MODE=false
-GEOCHAT_MOCK=false
+LLAVA_MOCK=false
 CDCHAT_MOCK=false
 POPEYE_MOCK=false
 RESNET_MOCK=false
@@ -100,15 +102,15 @@ These routes belong to **this** FastAPI app. They resolve `image_id`s and POST t
 
 | Local route | Remote |
 | --- | --- |
-| `POST /api/v1/models/geochat/vqa` | `{GEOCHAT_URL}/vqa` |
-| `POST /api/v1/models/geochat/caption` | `{GEOCHAT_URL}/caption` |
-| `POST /api/v1/models/geochat/grounding` | `{GEOCHAT_URL}/grounding` |
+| `POST /api/v1/models/llava/vqa` | `{LLAVA_URL}/vqa` (multipart `.npy`) |
+| `POST /api/v1/models/llava/caption` | `{LLAVA_URL}/vqa` (multipart `.npy`) |
+| `POST /api/v1/models/llava/grounding` | `{LLAVA_URL}/vqa` (multipart `.npy`) |
 | `POST /api/v1/models/cdchat/change` | `{CDCHAT_URL}/cdchat/predict` |
-| `POST /api/v1/models/popeye/optical-sar` | `{POPEYE_URL}/optical-sar` |
+| `POST /api/v1/models/popeye/optical-sar` | `{POPEYE_URL}/analyze` (multipart PNG pair) |
 | `POST /api/v1/models/resnet/features` | `{RESNET_URL}/features` |
 | `GET /api/v1/models/health` | probes `/health` on each URL |
 
-Remote wrapper contracts (ours, not native GeoChat/Popeye APIs) send RGB PNG as base64. CLIP 504px (GeoChat) and CDChat 448px BGR stay on the GPU service.
+GeoLLaVA receives RGB as a `.npy` file over multipart form data. CDChat still sends RGB PNG as base64; 448px BGR stays on the GPU service.
 
 ---
 
@@ -123,9 +125,9 @@ POST /api/v1/upload
 
 POST /api/v1/query
   → classifier
-  → BI_TEMPORAL_CHANGE: Rasterio load/validate/normalize → RGB → CDCHAT_URL → Rasterio fusion
-  → VQA / caption / grounding: storage → RGB → GEOCHAT_URL
-  → OPTICAL_SAR: storage → RGB pair → POPEYE_URL
+  → BI_TEMPORAL_CHANGE: Sih load/validate/normalize → RGB → CDCHAT_URL → Sih fusion
+  → VQA / caption / grounding: storage → RGB `.npy` → LLAVA_URL
+  → OPTICAL_SAR: storage → RGB PNG pair → POPEYE_URL `/analyze`
 ```
 
 ---

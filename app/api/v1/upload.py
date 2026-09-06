@@ -9,7 +9,7 @@ from app.schemas import UploadResponse, FileMetadata
 router = APIRouter()
 
 ALLOWED_EXTENSIONS = {
-    ".jpg", ".jpeg", ".png",
+    ".jpg", ".jpeg", ".png", ".npy",
     ".tif", ".tiff",
     ".slc", ".grd", ".cos", ".ntf", ".nitf", ".h5", ".hdf5", ".img", ".safe",
     ".geojson", ".json",

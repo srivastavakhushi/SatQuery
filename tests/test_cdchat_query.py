@@ -35,11 +35,11 @@ def test_vqa_intent_does_not_call_cdchat(monkeypatch):
     from tests.conftest import FakeResponse, disable_model_mocks, install_fake_httpx
 
     disable_model_mocks(monkeypatch)
-    monkeypatch.setattr(settings, "GEOCHAT_URL", "http://geochat.test")
+    monkeypatch.setattr(settings, "LLAVA_URL", "http://llava.test")
     image_ids = upload_images(1)
     install_fake_httpx(
         monkeypatch,
-        post=FakeResponse(200, {"answer": "Several buildings are visible.", "model": "geochat"}),
+        post=FakeResponse(200, {"answer": "Several buildings are visible.", "model": "llava"}),
     )
     with patch("app.tools.models.cd_chat.cdchat_adapter.run_cdchat") as mock_cdchat:
         response = client.post(API, json={
@@ -53,7 +53,7 @@ def test_vqa_intent_does_not_call_cdchat(monkeypatch):
     mock_cdchat.assert_not_called()
     assert "CDChat" not in data["models_dispatched"]
     assert "VQA" in data["models_dispatched"]
-    assert "GeoChat" in data["models_dispatched"]
+    assert "GeoLLaVA" in data["models_dispatched"]
 
 
 def test_bi_temporal_missing_second_image():
@@ -143,11 +143,11 @@ def test_cdchat_result_is_fused_into_final_response():
 
 def test_upload_does_not_invoke_cdchat():
     with patch("app.tools.models.cd_chat.cdchat_adapter.run_cdchat") as mock_cdchat:
-        with patch("app.agent.adapters.geochat_adapter.run_geochat_vqa") as mock_geochat:
+        with patch("app.agent.adapters.llava_adapter.run_llava_vqa") as mock_llava:
             with patch("app.agent.adapters.popeye_adapter.run_popeye") as mock_popeye:
                 with patch("app.agent.adapters.resnet_adapter.run_resnet_features") as mock_resnet:
                     upload_images(2)
     mock_cdchat.assert_not_called()
-    mock_geochat.assert_not_called()
+    mock_llava.assert_not_called()
     mock_popeye.assert_not_called()
     mock_resnet.assert_not_called()

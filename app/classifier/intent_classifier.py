@@ -1,6 +1,7 @@
 import re
 from typing import List, Optional
 from app.classifier.base import QueryIntent, IntentClassificationResult, LLMClassifierInterface
+from app.image_modalities import suggests_optical_sar
 
 class IntentClassifier:
     """
@@ -44,9 +45,7 @@ class IntentClassifier:
     def classify(self, query: str, image_ids: Optional[List[str]] = None) -> IntentClassificationResult:
         normalized_query = query.strip().lower()
         image_count = len(image_ids) if image_ids else 0
-        sar_from_ids = bool(
-            image_ids and any("sar" in str(img_id).lower() for img_id in image_ids)
-        )
+        optical_sar_inputs = suggests_optical_sar(image_ids)
 
         # Optional LLM classifier override (pluggable production path)
         if self.llm_classifier is not None:
@@ -68,12 +67,12 @@ class IntentClassifier:
                 explanation="Detected 2+ images with temporal comparison keywords"
             )
 
-        # Signal 2: Check Optical-SAR keywords or SAR-named inputs
-        if sar_from_ids:
+        # Signal 2: Check Optical-SAR keywords or SAR/S1-S2 uploads
+        if optical_sar_inputs:
             return IntentClassificationResult(
                 intent=QueryIntent.OPTICAL_SAR,
                 confidence=0.91,
-                explanation="Detected SAR modality from provided image identifiers"
+                explanation="Detected SAR / Sentinel-1 modality from the uploaded files"
             )
 
         for pattern in self.patterns[QueryIntent.OPTICAL_SAR]:

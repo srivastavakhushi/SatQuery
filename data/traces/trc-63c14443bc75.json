@@ -1,0 +1,123 @@
+{
+  "trace_id": "trc-63c14443bc75",
+  "query": "sab bta bkl",
+  "selected_task": "OPTICAL_SAR",
+  "models_dispatched": [
+    "MetadataReader",
+    "OpticalSAR",
+    "Popeye",
+    "EvidenceFusion"
+  ],
+  "parameters": {
+    "image_ids": [
+      "img-4d712acd40",
+      "img-0e69de36de"
+    ],
+    "intent_explanation": "Detected SAR / Sentinel-1 modality from the uploaded files",
+    "selected_model": "Popeye",
+    "cdchat_latency": 0.0
+  },
+  "latency": 6.116,
+  "confidence": 0.9,
+  "timestamp": "2026-09-06T10:57:11.025370Z",
+  "intent_confidence": 0.91,
+  "selected_model": "Popeye",
+  "image_ids": [
+    "img-4d712acd40",
+    "img-0e69de36de"
+  ],
+  "cdchat_execution_time": 0.0,
+  "cdchat_result": null,
+  "fusion_result": {
+    "status": "success",
+    "decision": "HIGH_CONFIDENCE_CHANGE",
+    "fusion_confidence": 0.9,
+    "fused_evidence_count": 1,
+    "consolidated_evidence": [
+      "[popeye]: Task: optical_sar (score=0.9)"
+    ],
+    "sih_evidence": [
+      {
+        "source": "popeye",
+        "score": 0.9,
+        "description": "Task: optical_sar"
+      }
+    ],
+    "cdchat": null,
+    "temporal_evidence": {
+      "image_count": 2,
+      "images": [
+        {
+          "image_id": "img-4d712acd40",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-4d712acd40_ROIs1970_fall_s2_13_p265.png",
+          "raster_metadata": {
+            "filename": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-4d712acd40_ROIs1970_fall_s2_13_p265.png",
+            "width": 256,
+            "height": 256,
+            "band_count": 3,
+            "crs": "None",
+            "resolution": [
+              1.0,
+              1.0
+            ],
+            "bounds": {
+              "left": 0.0,
+              "bottom": 256.0,
+              "right": 256.0,
+              "top": 0.0
+            },
+            "dtype": "uint8",
+            "nodata": null
+          },
+          "width": 256,
+          "height": 256,
+          "band_count": 3,
+          "crs": "None"
+        },
+        {
+          "image_id": "img-0e69de36de",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-0e69de36de_ROIs1970_fall_s1_13_p265.png",
+          "raster_metadata": {
+            "filename": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-0e69de36de_ROIs1970_fall_s1_13_p265.png",
+            "width": 256,
+            "height": 256,
+            "band_count": 1,
+            "crs": "None",
+            "resolution": [
+              1.0,
+              1.0
+            ],
+            "bounds": {
+              "left": 0.0,
+              "bottom": 256.0,
+              "right": 256.0,
+              "top": 0.0
+            },
+            "dtype": "uint8",
+            "nodata": null
+          },
+          "width": 256,
+          "height": 256,
+          "band_count": 1,
+          "crs": "None"
+        }
+      ]
+    },
+    "spatial_evidence": {
+      "spatial_overlap_percent": 98.4,
+      "coordinate_system": "EPSG:4326",
+      "analysis_type": "Single Scene Spatial Indexing"
+    },
+    "metadata_relevance": "Sih fusion/evidence.fuse_evidence"
+  },
+  "errors": [],
+  "execution_logs": [
+    "[Node 1] Classified Intent: OPTICAL_SAR (Confidence: 0.91)",
+    "[Node 2] Inputs validated successfully (2 images attached).",
+    "[Node 3] Read metadata for 2 images.",
+    "[Node 4] Dispatched model/tool 'OpticalSAR' (Popeye) successfully.",
+    "[Node 5] Completed spatial analysis (Single Scene Spatial Indexing).",
+    "[Node 6] Fused multi-source model evidence.",
+    "[Node 7] Generated final answer: \u0915\u0941\u0932 \u092e\u093f\u0932\u093e\u0915\u0930 \u0915\u093f\u0938\u0940 \u0935\u093f\u0936\u093f\u0937\u094d\u091f \u0935\u0938\u094d\u0924\u0941 \u0915\u0940 \u0935\u093f\u0936\u094d\u0935\u0938\u0928\u0940\u092f \u092a\u0939\u091a\u093e\u0928 \u0928\u0939\u0940\u0902 \u0939\u0941\u0908; multimodal evidence \u0905\u092a\u0930\u094d\u092f\u093e\u092a\u094d\u0924 \u0914\u0930 \u0906\u092a\u0938 \u092e\u0947\u0902 \u0905\u0938\u0939\u092e\u0924 \u0939\u0948\u0964 GroundingDINO \u0928\u0947 \u0915\u094b\u0908 detection \u0928\u0939\u0940\u0902 \u0926\u093f\u092f\u093e \u0914\u0930 SAM \u0907\u0938\u094d\u0924\u0947\u092e\u093e\u0932 \u0928\u0939\u0940\u0902 \u0939\u0941\u0906\u0964 RemoteCLIP \u0928\u0947 **farmland** \u0915\u094b \u0938\u092c\u0938\u0947 \u090a\u092a\u0930 \u0930\u0916\u093e, \u0932\u0947\u0915\u093f\u0928 similarity \u0915\u092e\u091c\u094b\u0930 \u0939\u0948; SAR \u092e\u0947\u0902 5 bright candidates \u092e\u093f\u0932\u0947 \u0939\u0948\u0902, \u091c\u093f\u0928\u0915\u0940 semantic class \u0928\u093f\u0930\u094d\u0927\u093e\u0930\u093f\u0924 \u0928\u0939\u0940\u0902 \u0915\u0940 \u091c\u093e \u0938\u0915\u0924\u0940\u0964"
+  ]
+}

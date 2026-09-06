@@ -1,5 +1,5 @@
 """
-Resolve stored image_ids to RGB PNG bytes for remote model adapters.
+Resolve stored image_ids to RGB PNG or .npy bytes for remote model adapters.
 
 Sih raster loading is used only when the stored file is not a simple RGB image
 (for example a GeoTIFF). Model-specific CLIP resize stays on the remote GPU host.
@@ -21,9 +21,47 @@ from app.storage import resolve_image_path
 ImageInput = Union[str, Path, bytes, Image.Image, np.ndarray]
 
 
+def image_id_to_png_bytes(image_id: str) -> bytes:
+    return path_to_rgb_png_bytes(resolve_image_path(image_id))
+
+
+def image_id_to_npy_bytes(image_id: str) -> bytes:
+    """Serialize a stored upload as a .npy file for GeoLLaVA."""
+    path = resolve_image_path(image_id)
+    if path.suffix.lower() == ".npy":
+        return path.read_bytes()
+    return array_to_npy_bytes(path_to_rgb_array(path))
+
+
+def path_to_rgb_array(path: Path) -> np.ndarray:
+    try:
+        with Image.open(path) as image:
+            return np.asarray(image.convert("RGB"))
+    except (UnidentifiedImageError, OSError):
+        pass
+    except Exception as exc:
+        raise PreprocessingError(f"Image conversion failed for '{path.name}'.") from exc
+
+    try:
+        from app.sih_raster import load_processed_stack
+
+        return np.asarray(sih_array_to_rgb(load_processed_stack(path)))
+    except (InvalidImageFormatError, PreprocessingError):
+        raise
+    except Exception as exc:
+        raise InvalidImageFormatError(
+            f"'{path.name}' could not be decoded as an image for model inference."
+        ) from exc
+
+
+def array_to_npy_bytes(array: np.ndarray) -> bytes:
+    buffer = BytesIO()
+    np.save(buffer, np.asarray(array))
+    return buffer.getvalue()
+
+
 def image_id_to_base64_png(image_id: str) -> str:
-    png = path_to_rgb_png_bytes(resolve_image_path(image_id))
-    return base64.b64encode(png).decode("ascii")
+    return base64.b64encode(image_id_to_png_bytes(image_id)).decode("ascii")
 
 
 def path_to_rgb_png_bytes(path: Path) -> bytes:

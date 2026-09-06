@@ -15,38 +15,36 @@ class Settings(BaseSettings):
     UPLOAD_DIR: Path = DATA_DIR / "uploads"
     REPORT_DIR: Path = DATA_DIR / "reports"
     TRACE_DIR: Path = DATA_DIR / "traces"
-    SIH_DIR: Path = BASE_DIR / "Sih"
+    SIH_DIR: Path = BASE_DIR / "Rasterio"
 
     # Environment settings
     DEBUG: bool = True
     LOG_LEVEL: str = "INFO"
 
     # Remote inference endpoints (empty = not configured).
-    # These are OUR wrapper contracts, not official GeoChat/Popeye HTTP APIs.
-    GEOCHAT_URL: str = ""
+    # Remote GPU wrappers: GeoLLaVA at LLAVA_URL, SatQuery/Popeye at POPEYE_URL.
+    LLAVA_URL: str = ""
     CDCHAT_URL: str = ""
     POPEYE_URL: str = ""
     RESNET_URL: str = ""
 
     # Default is REAL remote inference. Mock only when explicitly enabled.
     MODEL_MOCK_MODE: bool = False
-    GEOCHAT_MOCK: bool = False
+    LLAVA_MOCK: bool = False
     CDCHAT_MOCK: bool = False
     POPEYE_MOCK: bool = False
     RESNET_MOCK: bool = False
 
-    GEOCHAT_TIMEOUT_SECONDS: float = 60.0
+    LLAVA_TIMEOUT_SECONDS: float = 180.0
     CDCHAT_TIMEOUT_SECONDS: float = 120.0
-    POPEYE_TIMEOUT_SECONDS: float = 60.0
+    POPEYE_TIMEOUT_SECONDS: float = 180.0
     RESNET_TIMEOUT_SECONDS: float = 30.0
-    MODEL_HEALTH_TIMEOUT_SECONDS: float = 2.0
+    MODEL_HEALTH_TIMEOUT_SECONDS: float = 20.0
 
     # Remote wrapper path suffixes (provider-agnostic; implemented by the GPU host).
-    GEOCHAT_VQA_PATH: str = "/vqa"
-    GEOCHAT_CAPTION_PATH: str = "/caption"
-    GEOCHAT_GROUNDING_PATH: str = "/grounding"
+    LLAVA_VQA_PATH: str = "/vqa"
     CDCHAT_PREDICT_PATH: str = "/cdchat/predict"
-    POPEYE_PREDICT_PATH: str = "/optical-sar"
+    POPEYE_PREDICT_PATH: str = "/analyze"
     RESNET_FEATURES_PATH: str = "/features"
 
     # Used only by the separate CDChat GPU service process, not by this gateway.

@@ -4,14 +4,14 @@ from app.agent.adapters import popeye_adapter, remote
 from app.exceptions import QueryPipelineError
 from app.schemas.models import (
     CDChatChangeRequest,
-    GeoChatCaptionRequest,
-    GeoChatGroundingRequest,
-    GeoChatVQARequest,
+    LLaVACaptionRequest,
+    LLaVAGroundingRequest,
+    LLaVAVQARequest,
     PopeyeOpticalSarRequest,
     ResNetFeaturesRequest,
 )
 from app.tools.models.cd_chat import cd_chat_model
-from app.tools.models.geochat import geochat_model
+from app.tools.models.llava import llava_model
 from app.tools.models.popeye import popeye_model
 from app.tools.models.resnet import resnet_model
 
@@ -21,26 +21,26 @@ router = APIRouter()
 @router.get("/models/health")
 def models_health():
     return {
-        "geochat": remote.probe_health("geochat"),
+        "llava": remote.probe_health("llava"),
         "cdchat": remote.probe_health("cdchat"),
         "popeye": remote.probe_health("popeye"),
         "resnet": remote.probe_health("resnet"),
     }
 
 
-@router.post("/models/geochat/vqa")
-def geochat_vqa(request: GeoChatVQARequest):
-    return _call(lambda: geochat_model.answer_question([request.image_id], request.question))
+@router.post("/models/llava/vqa")
+def llava_vqa(request: LLaVAVQARequest):
+    return _call(lambda: llava_model.answer_question([request.image_id], request.question))
 
 
-@router.post("/models/geochat/caption")
-def geochat_caption(request: GeoChatCaptionRequest):
-    return _call(lambda: geochat_model.generate_caption([request.image_id], prompt=request.prompt))
+@router.post("/models/llava/caption")
+def llava_caption(request: LLaVACaptionRequest):
+    return _call(lambda: llava_model.generate_caption([request.image_id], prompt=request.prompt))
 
 
-@router.post("/models/geochat/grounding")
-def geochat_grounding(request: GeoChatGroundingRequest):
-    return _call(lambda: geochat_model.ground_target([request.image_id], request.query))
+@router.post("/models/llava/grounding")
+def llava_grounding(request: LLaVAGroundingRequest):
+    return _call(lambda: llava_model.ground_target([request.image_id], request.query))
 
 
 @router.post("/models/cdchat/change")

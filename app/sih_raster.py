@@ -101,6 +101,11 @@ def preprocess_temporal_pair(path1: Path, path2: Path) -> Tuple[np.ndarray, np.n
         return _sih_preprocess_image(raw1), _sih_preprocess_image(raw2)
     except (InvalidImageFormatError, PreprocessingError):
         raise
+    except ValueError as exc:
+        raise PreprocessingError(
+            "These two images are not a matching bi-temporal pair "
+            f"({exc}). Optical + SAR scenes should be analyzed as an optical-SAR query."
+        ) from exc
     except Exception as exc:
         raise PreprocessingError("Sih raster preprocessing failed.") from exc
 

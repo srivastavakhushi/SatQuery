@@ -1,0 +1,94 @@
+{
+  "trace_id": "trc-7e623ef3c7f6",
+  "query": "Describe the scene in detail",
+  "selected_task": "CAPTIONING",
+  "models_dispatched": [
+    "MetadataReader",
+    "Captioning",
+    "GeoLLaVA",
+    "EvidenceFusion"
+  ],
+  "parameters": {
+    "image_ids": [
+      "img-67c7b85224"
+    ],
+    "intent_explanation": "Matched image captioning pattern: '\\bdescribe\\b'",
+    "selected_model": "GeoLLaVA",
+    "cdchat_latency": 0.0
+  },
+  "latency": 10.621,
+  "confidence": 0.59,
+  "timestamp": "2026-09-05T16:38:59.779834Z",
+  "intent_confidence": 0.89,
+  "selected_model": "GeoLLaVA",
+  "image_ids": [
+    "img-67c7b85224"
+  ],
+  "cdchat_execution_time": 0.0,
+  "cdchat_result": null,
+  "fusion_result": {
+    "status": "success",
+    "decision": "POSSIBLE_CHANGE",
+    "fusion_confidence": 0.5858,
+    "fused_evidence_count": 1,
+    "consolidated_evidence": [
+      "[llava]: Task: caption (score=0.5858)"
+    ],
+    "sih_evidence": [
+      {
+        "source": "llava",
+        "score": 0.5858,
+        "description": "Task: caption"
+      }
+    ],
+    "cdchat": null,
+    "temporal_evidence": {
+      "image_count": 1,
+      "images": [
+        {
+          "image_id": "img-67c7b85224",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-67c7b85224_image_water.jpg",
+          "raster_metadata": {
+            "filename": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-67c7b85224_image_water.jpg",
+            "width": 463,
+            "height": 800,
+            "band_count": 3,
+            "crs": "None",
+            "resolution": [
+              1.0,
+              1.0
+            ],
+            "bounds": {
+              "left": 0.0,
+              "bottom": 800.0,
+              "right": 463.0,
+              "top": 0.0
+            },
+            "dtype": "uint8",
+            "nodata": null
+          },
+          "width": 463,
+          "height": 800,
+          "band_count": 3,
+          "crs": "None"
+        }
+      ]
+    },
+    "spatial_evidence": {
+      "spatial_overlap_percent": 98.4,
+      "coordinate_system": "EPSG:4326",
+      "analysis_type": "Single Scene Spatial Indexing"
+    },
+    "metadata_relevance": "Sih fusion/evidence.fuse_evidence"
+  },
+  "errors": [],
+  "execution_logs": [
+    "[Node 1] Classified Intent: CAPTIONING (Confidence: 0.89)",
+    "[Node 2] Inputs validated successfully (1 images attached).",
+    "[Node 3] Read metadata for 1 images.",
+    "[Node 4] Dispatched model/tool 'Captioning' (GeoLLaVA) successfully.",
+    "[Node 5] Completed spatial analysis (Single Scene Spatial Indexing).",
+    "[Node 6] Fused multi-source model evidence.",
+    "[Node 7] Generated final answer: The image features a vibrant, colorful, and abstract artwork. The artwork is composed of various colors, including blue, green, and yellow, creating a visually appealing and dynamic scene. The colors are distributed throughout the artwork, with some areas appearing more vivid than others. The overall effect is a captivating and engaging piece of art that captures the viewer's attention."
+  ]
+}

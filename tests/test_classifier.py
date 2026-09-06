@@ -35,3 +35,18 @@ def test_captioning_intent():
     
     assert result.intent == QueryIntent.CAPTIONING
     assert result.confidence >= 0.85
+
+
+def test_two_generic_images_default_to_change():
+    result = intent_classifier.classify("forest", ["img-aaaa", "img-bbbb"])
+    assert result.intent == QueryIntent.BI_TEMPORAL_CHANGE
+
+
+def test_s1_s2_filenames_route_to_optical_sar():
+    from tests.conftest import upload_named_images
+
+    image_ids = upload_named_images(
+        ["ROIs1970_fall_s2_13_p265.png", "ROIs1970_fall_s1_13_p265.png"]
+    )
+    result = intent_classifier.classify("forest", image_ids)
+    assert result.intent == QueryIntent.OPTICAL_SAR

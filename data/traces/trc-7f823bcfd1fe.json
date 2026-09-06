@@ -1,0 +1,94 @@
+{
+  "trace_id": "trc-7f823bcfd1fe",
+  "query": "Is there any water/lake visible?",
+  "selected_task": "VQA",
+  "models_dispatched": [
+    "MetadataReader",
+    "VQA",
+    "GeoLLaVA",
+    "EvidenceFusion"
+  ],
+  "parameters": {
+    "image_ids": [
+      "img-128b3d5e64"
+    ],
+    "intent_explanation": "Matched visual question answering pattern: '\\bis there\\b'",
+    "selected_model": "GeoLLaVA",
+    "cdchat_latency": 0.0
+  },
+  "latency": 7.369,
+  "confidence": 0.69,
+  "timestamp": "2026-09-05T16:30:04.838540Z",
+  "intent_confidence": 0.85,
+  "selected_model": "GeoLLaVA",
+  "image_ids": [
+    "img-128b3d5e64"
+  ],
+  "cdchat_execution_time": 0.0,
+  "cdchat_result": null,
+  "fusion_result": {
+    "status": "success",
+    "decision": "POSSIBLE_CHANGE",
+    "fusion_confidence": 0.6913,
+    "fused_evidence_count": 1,
+    "consolidated_evidence": [
+      "[llava]: Task: vqa (score=0.6913)"
+    ],
+    "sih_evidence": [
+      {
+        "source": "llava",
+        "score": 0.6913,
+        "description": "Task: vqa"
+      }
+    ],
+    "cdchat": null,
+    "temporal_evidence": {
+      "image_count": 1,
+      "images": [
+        {
+          "image_id": "img-128b3d5e64",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-128b3d5e64_Howrah_Bridge-Kolkata-West_Bengal.png",
+          "raster_metadata": {
+            "filename": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-128b3d5e64_Howrah_Bridge-Kolkata-West_Bengal.png",
+            "width": 1280,
+            "height": 827,
+            "band_count": 4,
+            "crs": "None",
+            "resolution": [
+              1.0,
+              1.0
+            ],
+            "bounds": {
+              "left": 0.0,
+              "bottom": 827.0,
+              "right": 1280.0,
+              "top": 0.0
+            },
+            "dtype": "uint8",
+            "nodata": null
+          },
+          "width": 1280,
+          "height": 827,
+          "band_count": 4,
+          "crs": "None"
+        }
+      ]
+    },
+    "spatial_evidence": {
+      "spatial_overlap_percent": 98.4,
+      "coordinate_system": "EPSG:4326",
+      "analysis_type": "Single Scene Spatial Indexing"
+    },
+    "metadata_relevance": "Sih fusion/evidence.fuse_evidence"
+  },
+  "errors": [],
+  "execution_logs": [
+    "[Node 1] Classified Intent: VQA (Confidence: 0.85)",
+    "[Node 2] Inputs validated successfully (1 images attached).",
+    "[Node 3] Read metadata for 1 images.",
+    "[Node 4] Dispatched model/tool 'VQA' (GeoLLaVA) successfully.",
+    "[Node 5] Completed spatial analysis (Single Scene Spatial Indexing).",
+    "[Node 6] Fused multi-source model evidence.",
+    "[Node 7] Generated final answer: No, there is no water or lake visible in the image. The image only shows a white background and a white wall."
+  ]
+}

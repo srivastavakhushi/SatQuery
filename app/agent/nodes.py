@@ -22,9 +22,9 @@ _INTENT_TOOL_MAP = {
 
 _TOOL_MODEL_MAP = {
     "ChangeDetection": "CDChat",
-    "VQA": "GeoChat",
-    "Captioning": "GeoChat",
-    "Grounding": "GeoChat",
+    "VQA": "GeoLLaVA",
+    "Captioning": "GeoLLaVA",
+    "Grounding": "GeoLLaVA",
     "OpticalSAR": "Popeye",
 }
 

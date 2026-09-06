@@ -7,7 +7,7 @@ configured URLs. Missing URLs and network failures do not fall back to mock data
 
 from __future__ import annotations
 
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import httpx
 
@@ -20,11 +20,14 @@ from app.exceptions import (
 )
 
 _MODEL_META: Dict[str, Tuple[str, str, str, str]] = {
-    "geochat": ("GEOCHAT_URL", "GEOCHAT_MOCK", "GEOCHAT_TIMEOUT_SECONDS", "GeoChat"),
+    "llava": ("LLAVA_URL", "LLAVA_MOCK", "LLAVA_TIMEOUT_SECONDS", "GeoLLaVA"),
     "cdchat": ("CDCHAT_URL", "CDCHAT_MOCK", "CDCHAT_TIMEOUT_SECONDS", "CDChat"),
     "popeye": ("POPEYE_URL", "POPEYE_MOCK", "POPEYE_TIMEOUT_SECONDS", "Popeye"),
     "resnet": ("RESNET_URL", "RESNET_MOCK", "RESNET_TIMEOUT_SECONDS", "ResNet"),
 }
+
+# ngrok free tiers intercept browsers unless this header is present.
+_REMOTE_HEADERS = {"ngrok-skip-browser-warning": "true"}
 
 
 def display_name(model: str) -> str:
@@ -38,7 +41,14 @@ def is_mock_enabled(model: str) -> bool:
 
 def configured_url(model: str) -> str:
     url_attr = _MODEL_META[model][0]
-    return str(getattr(settings, url_attr) or "").strip()
+    return _normalize_base_url(str(getattr(settings, url_attr) or "").strip())
+
+
+def _normalize_base_url(url: str) -> str:
+    cleaned = url.rstrip("/")
+    if cleaned.endswith("/docs"):
+        cleaned = cleaned[: -len("/docs")].rstrip("/")
+    return cleaned
 
 
 def require_remote_url(model: str) -> str:
@@ -59,12 +69,37 @@ def join_url(base: str, path: str) -> str:
 
 
 def post_inference(model: str, path: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    return _post(model, path, json=payload)
+
+
+def post_multipart(
+    model: str,
+    path: str,
+    files: Dict[str, Any],
+    data: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    return _post(model, path, files=files, data=data)
+
+
+def _post(
+    model: str,
+    path: str,
+    json: Optional[Dict[str, Any]] = None,
+    files: Optional[Dict[str, Any]] = None,
+    data: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     name = display_name(model)
     url = join_url(require_remote_url(model), path)
     timeout = float(getattr(settings, _MODEL_META[model][2]))
     try:
         with httpx.Client(timeout=timeout) as client:
-            response = client.post(url, json=payload)
+            response = client.post(
+                url,
+                json=json,
+                files=files,
+                data=data,
+                headers=_REMOTE_HEADERS,
+            )
     except httpx.TimeoutException as exc:
         raise ModelTimeoutError(f"{name} inference timed out.") from exc
     except httpx.RequestError as exc:
@@ -86,12 +121,12 @@ def post_inference(model: str, path: str, payload: Dict[str, Any]) -> Dict[str, 
         )
 
     try:
-        data = response.json()
+        payload = response.json()
     except ValueError as exc:
         raise ModelInferenceError(f"{name} returned a non-JSON response.") from exc
-    if not isinstance(data, dict):
+    if not isinstance(payload, dict):
         raise ModelInferenceError(f"{name} returned an unexpected payload.")
-    return data
+    return payload
 
 
 def probe_health(model: str) -> Dict[str, Any]:
@@ -112,7 +147,7 @@ def probe_health(model: str) -> Dict[str, Any]:
             with httpx.Client(timeout=timeout) as client:
                 for candidate in (f"{base}/health", base):
                     try:
-                        response = client.get(candidate)
+                        response = client.get(candidate, headers=_REMOTE_HEADERS)
                     except httpx.RequestError:
                         continue
                     if response.status_code < 500:

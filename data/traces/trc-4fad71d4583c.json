@@ -1,0 +1,94 @@
+{
+  "trace_id": "trc-4fad71d4583c",
+  "query": "how many rivers are visible?",
+  "selected_task": "VQA",
+  "models_dispatched": [
+    "MetadataReader",
+    "VQA",
+    "GeoLLaVA",
+    "EvidenceFusion"
+  ],
+  "parameters": {
+    "image_ids": [
+      "img-c34860cf67"
+    ],
+    "intent_explanation": "Matched visual question answering pattern: '\\bhow many\\b'",
+    "selected_model": "GeoLLaVA",
+    "cdchat_latency": 0.0
+  },
+  "latency": 4.015,
+  "confidence": 0.85,
+  "timestamp": "2026-09-05T17:16:29.620993Z",
+  "intent_confidence": 0.85,
+  "selected_model": "GeoLLaVA",
+  "image_ids": [
+    "img-c34860cf67"
+  ],
+  "cdchat_execution_time": 0.0,
+  "cdchat_result": null,
+  "fusion_result": {
+    "status": "success",
+    "decision": "HIGH_CONFIDENCE_CHANGE",
+    "fusion_confidence": 0.8588,
+    "fused_evidence_count": 1,
+    "consolidated_evidence": [
+      "[llava]: Task: vqa (score=0.8588)"
+    ],
+    "sih_evidence": [
+      {
+        "source": "llava",
+        "score": 0.8588,
+        "description": "Task: vqa"
+      }
+    ],
+    "cdchat": null,
+    "temporal_evidence": {
+      "image_count": 1,
+      "images": [
+        {
+          "image_id": "img-c34860cf67",
+          "filepath": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-c34860cf67_satellite1.jpg",
+          "raster_metadata": {
+            "filename": "C:\\Users\\khush\\OneDrive\\Desktop\\Backend\\data\\uploads\\img-c34860cf67_satellite1.jpg",
+            "width": 554,
+            "height": 554,
+            "band_count": 3,
+            "crs": "None",
+            "resolution": [
+              1.0,
+              1.0
+            ],
+            "bounds": {
+              "left": 0.0,
+              "bottom": 554.0,
+              "right": 554.0,
+              "top": 0.0
+            },
+            "dtype": "uint8",
+            "nodata": null
+          },
+          "width": 554,
+          "height": 554,
+          "band_count": 3,
+          "crs": "None"
+        }
+      ]
+    },
+    "spatial_evidence": {
+      "spatial_overlap_percent": 98.4,
+      "coordinate_system": "EPSG:4326",
+      "analysis_type": "Single Scene Spatial Indexing"
+    },
+    "metadata_relevance": "Sih fusion/evidence.fuse_evidence"
+  },
+  "errors": [],
+  "execution_logs": [
+    "[Node 1] Classified Intent: VQA (Confidence: 0.85)",
+    "[Node 2] Inputs validated successfully (1 images attached).",
+    "[Node 3] Read metadata for 1 images.",
+    "[Node 4] Dispatched model/tool 'VQA' (GeoLLaVA) successfully.",
+    "[Node 5] Completed spatial analysis (Single Scene Spatial Indexing).",
+    "[Node 6] Fused multi-source model evidence.",
+    "[Node 7] Generated final answer: There are two rivers visible in the image."
+  ]
+}

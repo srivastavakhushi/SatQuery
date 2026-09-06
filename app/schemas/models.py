@@ -3,17 +3,17 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 
-class GeoChatVQARequest(BaseModel):
+class LLaVAVQARequest(BaseModel):
     image_id: str = Field(..., description="Stored upload image ID")
-    question: str = Field(..., description="Visual question for GeoChat")
+    question: str = Field(..., description="Visual question for LLaVA")
 
 
-class GeoChatCaptionRequest(BaseModel):
+class LLaVACaptionRequest(BaseModel):
     image_id: str
     prompt: Optional[str] = Field(None, description="Optional caption prompt")
 
 
-class GeoChatGroundingRequest(BaseModel):
+class LLaVAGroundingRequest(BaseModel):
     image_id: str
     query: str = Field(..., description="Object or region to localize")
 
@@ -42,7 +42,7 @@ class ModelHealthStatus(BaseModel):
 
 
 class ModelsHealthResponse(BaseModel):
-    geochat: Dict[str, Any]
+    llava: Dict[str, Any]
     cdchat: Dict[str, Any]
     popeye: Dict[str, Any]
     resnet: Dict[str, Any]
