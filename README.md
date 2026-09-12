@@ -35,7 +35,7 @@ This gateway does **not** load large model weights. Inference happens at configu
 | `VQA` | `VQA` | GeoLLaVA VQA |
 | `CAPTIONING` | `Captioning` | GeoLLaVA caption |
 | `GROUNDING` | `Grounding` |  |
-| `BI_TEMPORAL_CHANGE` | `ChangeDetection` | CDChat |
+| `BI_TEMPORAL_CHANGE` | `ChangeDetection` | RSICRC |
 | `OPTICAL_SAR` | `OpticalSAR` | Popeye |
 
 Qwen, YOLO, and RingMoGPT are **not** on live routes.
