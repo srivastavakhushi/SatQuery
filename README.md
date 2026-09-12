@@ -64,7 +64,7 @@ Popeye is reached at `POPEYE_URL` (`POST /analyze` with multipart `query` + `opt
 
 **Stays on this backend:** FastAPI, classifier, LangGraph, upload storage, Sih raster/preprocessing/fusion/reporting, thin HTTP adapters.
 
-**Runs on a GPU host:** GeoLLaVA, CDChat, Popeye, and (if used) ResNet-50 checkpoints. This repo does not contain `.pt` / `.pth` / `.safetensors` weights.
+**Runs on a GPU host:** GeoLLaVA, RSICRC, Popeye, and (if used) ResNet-50 checkpoints. This repo does not contain `.pt` / `.pth` / `.safetensors` weights.
 
 CDChat wrapper (already in `services/cdchat/`):
 
