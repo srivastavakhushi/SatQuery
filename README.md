@@ -18,7 +18,7 @@ This gateway does **not** load large model weights. Inference happens at configu
    - Routes to `VQA`, `CAPTIONING`, `GROUNDING`, `BI_TEMPORAL_CHANGE`, or `OPTICAL_SAR`.
 
 3. **LangGraph Agent**
-   - `Query` → classify → validate images → metadata → model dispatch → spatial analysis → Sih fusion → answer
+   - `Query` → classify → validate images → metadata → model dispatch → spatial analysis → fusion → answer
 
 4. **Remote model adapters**
    - **GeoLLaVA**: VQA, captioning, grounding (via `LLAVA_URL`). Sends a `.npy` array as multipart `file`.
