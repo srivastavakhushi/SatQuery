@@ -1,6 +1,6 @@
 # Multi-Modal Geospatial AI Backend Gateway
 
-A modular FastAPI backend featuring an Intent Classifier, LangGraph Agent State Machine & Task Planner, Extensible Tool Registry with remote model adapters (GeoLLaVA, CDChat, Popeye, ResNet-50), Sih raster/fusion, and audit-grade execution traces.
+A modular FastAPI backend featuring an Intent Classifier, LangGraph Agent State Machine & Task Planner, Extensible Tool Registry with remote model adapters (GeoLLaVA, RSICRC, Popeye, ResNet-50), Sih raster/fusion, and audit-grade execution traces.
 
 This gateway does **not** load large model weights. Inference happens at configured remote HTTP endpoints.
 
@@ -22,7 +22,7 @@ This gateway does **not** load large model weights. Inference happens at configu
 
 4. **Remote model adapters**
    - **GeoLLaVA**: VQA, captioning, grounding (via `LLAVA_URL`). Sends a `.npy` array as multipart `file`.
-   - **CDChat**: bi-temporal change description (via `CDCHAT_URL`)
+   - **RSICRC**: bi-temporal change description (via `RSICRC_URL`)
    - **Popeye**: optical + SAR understanding (via `POPEYE_URL`). Sends RGB PNGs as multipart `optical_image` + `sar_image`.
    - **ResNet-50**: supporting features/domain service only (`RESNET_URL`). Not used on query routes.
 
