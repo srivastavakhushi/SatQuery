@@ -34,7 +34,7 @@ This gateway does **not** load large model weights. Inference happens at configu
 | --- | --- | --- |
 | `VQA` | `VQA` | GeoLLaVA VQA |
 | `CAPTIONING` | `Captioning` | GeoLLaVA caption |
-| `GROUNDING` | `Grounding` | GeoLLaVA grounding |
+| `GROUNDING` | `Grounding` |  |
 | `BI_TEMPORAL_CHANGE` | `ChangeDetection` | CDChat |
 | `OPTICAL_SAR` | `OpticalSAR` | Popeye |
 
