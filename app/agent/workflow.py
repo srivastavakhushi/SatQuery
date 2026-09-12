@@ -69,7 +69,7 @@ def run_agent_workflow(
         "models_dispatched": [],
         "tool_outputs": {},
         "selected_model": None,
-        "cdchat_latency": 0.0,
+        "rsicrc_latency": 0.0,
         "spatial_analysis_results": {},
         "fused_evidence": {},
         "final_answer": "",
@@ -96,7 +96,7 @@ def run_agent_workflow(
         "image_ids": final_state.get("image_ids") or [],
         "intent_explanation": final_state.get("intent_explanation"),
         "selected_model": final_state.get("selected_model"),
-        "cdchat_latency": final_state.get("cdchat_latency"),
+        "rsicrc_latency": final_state.get("rsicrc_latency"),
     })
 
     # Audit Logging via ExecutionTraceLogger
@@ -111,8 +111,8 @@ def run_agent_workflow(
         intent_confidence=final_state.get("intent_confidence"),
         selected_model=final_state.get("selected_model"),
         image_ids=final_state.get("image_ids") or [],
-        cdchat_execution_time=final_state.get("cdchat_latency") or 0.0,
-        cdchat_result=cd_output or None,
+        rsicrc_execution_time=final_state.get("rsicrc_latency") or 0.0,
+        rsicrc_result=cd_output or None,
         fusion_result=final_state.get("fused_evidence") or None,
         errors=final_state.get("pipeline_errors") or [],
         execution_logs=final_state.get("execution_logs") or [],

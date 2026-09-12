@@ -62,12 +62,12 @@ class ModelInferenceError(ModelServiceError):
     default_detail = "Model inference failed."
 
 
-class CDChatUnavailableError(ModelUnavailableError):
-    default_detail = "CDChat service is unavailable."
+class RSICRCUnavailableError(ModelUnavailableError):
+    default_detail = "RSICRC service is unavailable."
 
 
-class CDChatInferenceError(ModelInferenceError):
-    default_detail = "CDChat inference failed."
+class RSICRCInferenceError(ModelInferenceError):
+    default_detail = "RSICRC inference failed."
 
 
 class InvalidClassifierOutputError(QueryPipelineError):

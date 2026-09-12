@@ -6,7 +6,7 @@ class ReportRequest(BaseModel):
     trace_id: Optional[str] = Field(None, description="Execution trace ID to generate report for")
     image_ids: Optional[List[str]] = Field(default_factory=list, description="List of image IDs for session report")
     title: Optional[str] = Field("Geospatial & Multi-Modal Intelligence Report", description="Custom report title")
-    format: str = Field("json", description="Report format: json, markdown, or pdf")
+    format: str = Field("pdf", description="Report format: pdf, json, or markdown")
 
 class ReportResponse(BaseModel):
     report_id: str

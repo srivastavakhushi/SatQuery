@@ -19,8 +19,8 @@ class ExecutionTrace(BaseModel):
     intent_confidence: Optional[float] = Field(None, description="Classifier confidence")
     selected_model: Optional[str] = Field(None, description="Primary model selected for the intent")
     image_ids: List[str] = Field(default_factory=list, description="Image IDs used for this query")
-    cdchat_execution_time: Optional[float] = Field(None, description="CDChat inference time in seconds")
-    cdchat_result: Optional[Dict[str, Any]] = Field(None, description="Raw CDChat / ChangeDetection output")
+    rsicrc_execution_time: Optional[float] = Field(None, description="RSICRC inference time in seconds")
+    rsicrc_result: Optional[Dict[str, Any]] = Field(None, description="Raw RSICRC / ChangeDetection output")
     fusion_result: Optional[Dict[str, Any]] = Field(None, description="Evidence fusion output")
     errors: List[str] = Field(default_factory=list, description="Non-fatal pipeline errors")
     execution_logs: List[str] = Field(default_factory=list, description="Node-level execution logs")
@@ -29,6 +29,7 @@ class QueryResponse(BaseModel):
     status: str = "success"
     query: str
     intent: str
+    selected_model: Optional[str] = Field(None, description="Primary inference model used for this query")
     confidence: float
     answer: str
     fused_evidence: Dict[str, Any] = Field(default_factory=dict)

@@ -3,17 +3,17 @@ from fastapi import APIRouter, HTTPException
 from app.agent.adapters import popeye_adapter, remote
 from app.exceptions import QueryPipelineError
 from app.schemas.models import (
-    CDChatChangeRequest,
     LLaVACaptionRequest,
     LLaVAGroundingRequest,
     LLaVAVQARequest,
     PopeyeOpticalSarRequest,
     ResNetFeaturesRequest,
+    RSICRCChangeRequest,
 )
-from app.tools.models.cd_chat import cd_chat_model
 from app.tools.models.llava import llava_model
 from app.tools.models.popeye import popeye_model
 from app.tools.models.resnet import resnet_model
+from app.tools.models.rsicrc import rsicrc_model
 
 router = APIRouter()
 
@@ -22,7 +22,7 @@ router = APIRouter()
 def models_health():
     return {
         "llava": remote.probe_health("llava"),
-        "cdchat": remote.probe_health("cdchat"),
+        "rsicrc": remote.probe_health("rsicrc"),
         "popeye": remote.probe_health("popeye"),
         "resnet": remote.probe_health("resnet"),
     }
@@ -43,10 +43,10 @@ def llava_grounding(request: LLaVAGroundingRequest):
     return _call(lambda: llava_model.ground_target([request.image_id], request.query))
 
 
-@router.post("/models/cdchat/change")
-def cdchat_change(request: CDChatChangeRequest):
+@router.post("/models/rsicrc/change")
+def rsicrc_change(request: RSICRCChangeRequest):
     return _call(
-        lambda: cd_chat_model.detect_changes(
+        lambda: rsicrc_model.detect_changes(
             [request.image_id_1, request.image_id_2],
             request.question,
         )

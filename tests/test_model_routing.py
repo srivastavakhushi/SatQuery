@@ -85,13 +85,13 @@ def test_grounding_routes_to_llava(monkeypatch):
     assert posts and "/vqa" in posts[0]["url"]
 
 
-def test_bi_temporal_routes_to_cdchat(monkeypatch):
+def test_bi_temporal_routes_to_rsicrc(monkeypatch):
     disable_model_mocks(monkeypatch)
-    monkeypatch.setattr(settings, "CDCHAT_URL", "http://cdchat.test")
+    monkeypatch.setattr(settings, "RSICRC_URL", "http://rsicrc.test")
     image_ids = upload_images(2)
     posts, _ = install_fake_httpx(
         monkeypatch,
-        post=FakeResponse(200, {"answer": "New buildings appeared.", "model": "cdchat", "confidence": 0.91}),
+        post=FakeResponse(200, {"answer": "New buildings appeared.", "model": "rsicrc", "confidence": 0.91}),
     )
     response = client.post(QUERY, json={
         "query": "What changed between these two images?",
@@ -100,10 +100,12 @@ def test_bi_temporal_routes_to_cdchat(monkeypatch):
     assert response.status_code == 200
     data = response.json()
     assert data["intent"] == "BI_TEMPORAL_CHANGE"
-    assert "CDChat" in data["models_dispatched"]
-    assert posts and "/cdchat/predict" in posts[0]["url"]
-    assert "image1" in posts[0]["json"]
-    assert "image2" in posts[0]["json"]
+    assert "RSICRC" in data["models_dispatched"]
+    assert posts and posts[0]["url"].endswith("/analyze")
+    assert posts[0]["files"] and "before" in posts[0]["files"]
+    assert "after" in posts[0]["files"]
+    assert posts[0]["files"]["before"][0] == "before.png"
+    assert posts[0]["files"]["after"][0] == "after.png"
 
 
 def test_optical_sar_routes_to_popeye(monkeypatch):
@@ -207,16 +209,16 @@ def test_missing_llava_url_returns_503(monkeypatch):
     assert response.json()["error"] == detail
 
 
-def test_missing_cdchat_url_returns_503(monkeypatch):
+def test_missing_rsicrc_url_returns_503(monkeypatch):
     disable_model_mocks(monkeypatch)
-    monkeypatch.setattr(settings, "CDCHAT_URL", "")
+    monkeypatch.setattr(settings, "RSICRC_URL", "")
     image_ids = upload_images(2)
     response = client.post(QUERY, json={
         "query": "What changed between these two images?",
         "image_ids": image_ids,
     })
     assert response.status_code == 503
-    assert "CDChat inference endpoint is not configured" in response.json()["detail"]
+    assert "RSICRC inference endpoint is not configured" in response.json()["detail"]
 
 
 def test_unreachable_url_returns_503(monkeypatch):
@@ -274,7 +276,7 @@ def test_mock_responses_contain_mock_true(monkeypatch):
     caption = client.post(f"{MODELS}/llava/caption", json={"image_id": image_ids[0]})
     grounding = client.post(f"{MODELS}/llava/grounding", json={"image_id": image_ids[0], "query": "ship"})
     change = client.post(
-        f"{MODELS}/cdchat/change",
+        f"{MODELS}/rsicrc/change",
         json={"image_id_1": image_ids[0], "image_id_2": image_ids[1], "question": "What changed?"},
     )
     popeye = client.post(
@@ -314,7 +316,7 @@ def test_upload_never_invokes_a_model():
     with patch("app.agent.adapters.llava_adapter.run_llava_vqa") as llava_vqa:
         with patch("app.agent.adapters.llava_adapter.run_llava_caption") as llava_cap:
             with patch("app.agent.adapters.llava_adapter.run_llava_grounding") as llava_g:
-                with patch("app.agent.adapters.cdchat_adapter.run_cdchat") as cdchat:
+                with patch("app.agent.adapters.rsicrc_adapter.run_rsicrc") as rsicrc:
                     with patch("app.agent.adapters.popeye_adapter.run_popeye") as popeye:
                         with patch("app.agent.adapters.resnet_adapter.run_resnet_features") as resnet:
                             ids = upload_images(2)
@@ -322,7 +324,7 @@ def test_upload_never_invokes_a_model():
     llava_vqa.assert_not_called()
     llava_cap.assert_not_called()
     llava_g.assert_not_called()
-    cdchat.assert_not_called()
+    rsicrc.assert_not_called()
     popeye.assert_not_called()
     resnet.assert_not_called()
 
@@ -341,11 +343,11 @@ def test_image_id_resolves_for_model_facade(monkeypatch):
 
 def test_changedetection_does_not_call_resnet(monkeypatch):
     disable_model_mocks(monkeypatch)
-    monkeypatch.setattr(settings, "CDCHAT_URL", "http://cdchat.test")
+    monkeypatch.setattr(settings, "RSICRC_URL", "http://rsicrc.test")
     image_ids = upload_images(2)
     install_fake_httpx(
         monkeypatch,
-        post=FakeResponse(200, {"answer": "Change detected.", "model": "cdchat", "confidence": 0.9}),
+        post=FakeResponse(200, {"answer": "Change detected.", "model": "rsicrc", "confidence": 0.9}),
     )
     with patch("app.agent.adapters.resnet_adapter.run_resnet_features") as mock_resnet:
         response = client.post(QUERY, json={
@@ -359,7 +361,7 @@ def test_changedetection_does_not_call_resnet(monkeypatch):
 def test_models_health_does_not_expose_urls(monkeypatch):
     disable_model_mocks(monkeypatch)
     monkeypatch.setattr(settings, "LLAVA_URL", "http://secret-host/llava")
-    monkeypatch.setattr(settings, "CDCHAT_URL", "")
+    monkeypatch.setattr(settings, "RSICRC_URL", "")
     monkeypatch.setattr(settings, "POPEYE_URL", "")
     monkeypatch.setattr(settings, "RESNET_URL", "")
     install_fake_httpx(monkeypatch, get=FakeResponse(200, {"status": "ok"}))
@@ -370,8 +372,8 @@ def test_models_health_does_not_expose_urls(monkeypatch):
     assert "secret-host" not in dumped
     assert body["llava"]["configured"] is True
     assert body["llava"]["mode"] == "remote"
-    assert body["cdchat"]["configured"] is False
-    assert body["cdchat"]["mode"] == "not_configured"
+    assert body["rsicrc"]["configured"] is False
+    assert body["rsicrc"]["mode"] == "not_configured"
 
 
 def test_health_mock_mode(monkeypatch):

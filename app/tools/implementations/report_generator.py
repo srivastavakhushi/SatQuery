@@ -10,10 +10,15 @@ def _build_markdown(report: Dict[str, Any]) -> str:
     findings = report.get("key_findings") or []
     findings_md = "\n".join(f"- {item}" for item in findings) or "- None"
     models = ", ".join(report.get("models_used") or []) or "N/A"
+    selected = report.get("selected_model") or "N/A"
+    query = report.get("query") or ""
+    query_line = f"- Query: {query}\n" if query else ""
     return (
         f"# {report.get('title')}\n\n"
         f"- Report ID: `{report.get('report_id')}`\n"
         f"- Intent: `{report.get('intent')}`\n"
+        f"- Model used: {selected}\n"
+        f"{query_line}"
         f"- Generated: {report.get('generated_at')}\n"
         f"- Models: {models}\n\n"
         f"## Summary\n\n{report.get('summary') or 'N/A'}\n\n"
@@ -81,8 +86,9 @@ class ReportGeneratorTool(BaseTool):
         final_answer = payload.get("final_answer", "")
         fused_evidence = payload.get("fused_evidence", {})
         models_used = payload.get("models_used", [])
-        requested_format = (payload.get("format") or "json").lower().strip()
+        requested_format = (payload.get("format") or "pdf").lower().strip()
         custom_title = payload.get("title")
+        selected_model = payload.get("selected_model") or ""
 
         report_id = f"REP-{uuid.uuid4().hex[:8].upper()}"
         report = {
@@ -90,6 +96,8 @@ class ReportGeneratorTool(BaseTool):
             "title": custom_title or f"Multi-Modal Intelligence Report - {intent}",
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "intent": intent,
+            "query": payload.get("query") or "",
+            "selected_model": selected_model,
             "summary": final_answer,
             "key_findings": fused_evidence.get("consolidated_evidence", []),
             "evidence_details": fused_evidence,

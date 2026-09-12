@@ -22,36 +22,31 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
 
     # Remote inference endpoints (empty = not configured).
-    # Remote GPU wrappers: GeoLLaVA at LLAVA_URL, SatQuery/Popeye at POPEYE_URL.
+    # Remote GPU wrappers: GeoLLaVA at LLAVA_URL, RSICRC at RSICRC_URL,
+    # SatQuery/Popeye at POPEYE_URL.
     LLAVA_URL: str = ""
-    CDCHAT_URL: str = ""
+    RSICRC_URL: str = ""
     POPEYE_URL: str = ""
     RESNET_URL: str = ""
 
     # Default is REAL remote inference. Mock only when explicitly enabled.
     MODEL_MOCK_MODE: bool = False
     LLAVA_MOCK: bool = False
-    CDCHAT_MOCK: bool = False
+    RSICRC_MOCK: bool = False
     POPEYE_MOCK: bool = False
     RESNET_MOCK: bool = False
 
     LLAVA_TIMEOUT_SECONDS: float = 180.0
-    CDCHAT_TIMEOUT_SECONDS: float = 120.0
+    RSICRC_TIMEOUT_SECONDS: float = 180.0
     POPEYE_TIMEOUT_SECONDS: float = 180.0
     RESNET_TIMEOUT_SECONDS: float = 30.0
     MODEL_HEALTH_TIMEOUT_SECONDS: float = 20.0
 
     # Remote wrapper path suffixes (provider-agnostic; implemented by the GPU host).
     LLAVA_VQA_PATH: str = "/vqa"
-    CDCHAT_PREDICT_PATH: str = "/cdchat/predict"
+    RSICRC_ANALYZE_PATH: str = "/analyze"
     POPEYE_PREDICT_PATH: str = "/analyze"
     RESNET_FEATURES_PATH: str = "/features"
-
-    # Used only by the separate CDChat GPU service process, not by this gateway.
-    CDCHAT_MODEL_PATH: str = ""
-    CDCHAT_MODEL_BASE: str = ""
-    CDCHAT_MM_PROJECTOR_PATH: str = ""
-    CDCHAT_DEVICE: str = "cuda"
 
     model_config = SettingsConfigDict(
         case_sensitive=True,

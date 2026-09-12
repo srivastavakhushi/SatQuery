@@ -21,7 +21,7 @@ from app.exceptions import (
 
 _MODEL_META: Dict[str, Tuple[str, str, str, str]] = {
     "llava": ("LLAVA_URL", "LLAVA_MOCK", "LLAVA_TIMEOUT_SECONDS", "GeoLLaVA"),
-    "cdchat": ("CDCHAT_URL", "CDCHAT_MOCK", "CDCHAT_TIMEOUT_SECONDS", "CDChat"),
+    "rsicrc": ("RSICRC_URL", "RSICRC_MOCK", "RSICRC_TIMEOUT_SECONDS", "RSICRC"),
     "popeye": ("POPEYE_URL", "POPEYE_MOCK", "POPEYE_TIMEOUT_SECONDS", "Popeye"),
     "resnet": ("RESNET_URL", "RESNET_MOCK", "RESNET_TIMEOUT_SECONDS", "ResNet"),
 }

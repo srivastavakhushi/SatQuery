@@ -84,19 +84,76 @@ def load_processed_stack(source: Path) -> np.ndarray:
         raise PreprocessingError("Sih raster preprocessing failed.") from exc
 
 
+def align_temporal_pair(image1: np.ndarray, image2: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Crop both stacks to a shared (bands, height, width) so RSICRC always
+    receives equal-sized images.
+
+    Uses a centered crop to the overlapping spatial window and the smaller
+    band count. A 2-pixel width mismatch like (4, 438, 441) vs (4, 438, 439)
+    becomes (4, 438, 439) on both sides.
+    """
+    stack1 = _as_band_stack(image1)
+    stack2 = _as_band_stack(image2)
+    bands = min(stack1.shape[0], stack2.shape[0])
+    height = min(stack1.shape[1], stack2.shape[1])
+    width = min(stack1.shape[2], stack2.shape[2])
+    if bands < 1 or height < 1 or width < 1:
+        raise PreprocessingError("Temporal pair overlap is empty after size alignment.")
+    aligned1 = _center_crop_stack(stack1, bands, height, width)
+    aligned2 = _center_crop_stack(stack2, bands, height, width)
+    if aligned1.shape != aligned2.shape:
+        raise PreprocessingError(
+            f"Could not align temporal pair shapes: {aligned1.shape} vs {aligned2.shape}."
+        )
+    if aligned1.shape != stack1.shape or aligned2.shape != stack2.shape:
+        logger.info(
+            "Aligned bi-temporal pair from %s and %s to %s",
+            tuple(stack1.shape),
+            tuple(stack2.shape),
+            tuple(aligned1.shape),
+        )
+    return aligned1, aligned2
+
+
+def _as_band_stack(image: np.ndarray) -> np.ndarray:
+    array = np.asarray(image)
+    if array.ndim == 2:
+        return array[np.newaxis, ...]
+    if array.ndim != 3:
+        raise PreprocessingError("Temporal images must have shape (bands, height, width).")
+    return array
+
+
+def _center_crop_stack(
+    stack: np.ndarray,
+    bands: int,
+    height: int,
+    width: int,
+) -> np.ndarray:
+    _, src_h, src_w = stack.shape
+    top = max(0, (src_h - height) // 2)
+    left = max(0, (src_w - width) // 2)
+    return np.ascontiguousarray(
+        stack[:bands, top : top + height, left : left + width]
+    )
+
+
 def preprocess_temporal_pair(path1: Path, path2: Path) -> Tuple[np.ndarray, np.ndarray]:
     """
     Query-time Sih preprocessing for two stored images.
 
-    Calls raster.preprocessing.validate_temporal_pair and normalize_band
-    (the same path as raster.model_input.preprocess_image).
+    Aligns spatial size first, then calls raster.preprocessing.validate_temporal_pair
+    and normalize_band (the same path as raster.model_input.preprocess_image).
     """
     ensure_sih_on_path()
     from raster.preprocessing import validate_temporal_pair
 
     try:
-        raw1 = _load_raw_stack(Path(path1))
-        raw2 = _load_raw_stack(Path(path2))
+        raw1, raw2 = align_temporal_pair(
+            _load_raw_stack(Path(path1)),
+            _load_raw_stack(Path(path2)),
+        )
         validate_temporal_pair(raw1, raw2)
         return _sih_preprocess_image(raw1), _sih_preprocess_image(raw2)
     except (InvalidImageFormatError, PreprocessingError):
@@ -162,14 +219,14 @@ def fuse_model_outputs(tool_outputs: Dict[str, Any]) -> Dict[str, Any]:
     from raster.model_output import create_model_output
 
     evidence_items: List[Any] = []
-    cdchat_payload = None
+    rsicrc_payload = None
 
     for tool_name, output in (tool_outputs or {}).items():
         if not isinstance(output, dict):
             continue
         model_name = str(output.get("model") or tool_name)
-        if tool_name == "ChangeDetection" or model_name.lower().startswith("cdchat"):
-            cdchat_payload = output
+        if tool_name == "ChangeDetection" or model_name.lower().startswith("rsicrc"):
+            rsicrc_payload = output
         confidence = output.get("confidence")
         if confidence is None:
             continue
@@ -196,8 +253,8 @@ def fuse_model_outputs(tool_outputs: Dict[str, Any]) -> Dict[str, Any]:
         f"[{item.source}]: {item.description} (score={item.score})"
         for item in fused.evidence
     ]
-    if cdchat_payload:
-        answer = cdchat_payload.get("answer") or cdchat_payload.get("summary")
+    if rsicrc_payload:
+        answer = rsicrc_payload.get("answer") or rsicrc_payload.get("summary")
         if answer:
             consolidated.insert(0, f"[ChangeDetection]: {answer}")
 
@@ -211,15 +268,15 @@ def fuse_model_outputs(tool_outputs: Dict[str, Any]) -> Dict[str, Any]:
             {"source": item.source, "score": item.score, "description": item.description}
             for item in fused.evidence
         ],
-        "cdchat": (
+        "rsicrc": (
             {
-                "answer": cdchat_payload.get("answer") or cdchat_payload.get("summary"),
-                "confidence": cdchat_payload.get("confidence"),
-                "model": cdchat_payload.get("model"),
-                "elapsed_seconds": cdchat_payload.get("elapsed_seconds"),
-                "image_ids": cdchat_payload.get("image_ids"),
+                "answer": rsicrc_payload.get("answer") or rsicrc_payload.get("summary"),
+                "confidence": rsicrc_payload.get("confidence"),
+                "model": rsicrc_payload.get("model"),
+                "elapsed_seconds": rsicrc_payload.get("elapsed_seconds"),
+                "image_ids": rsicrc_payload.get("image_ids"),
             }
-            if cdchat_payload
+            if rsicrc_payload
             else None
         ),
     }

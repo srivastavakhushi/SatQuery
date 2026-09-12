@@ -1,7 +1,7 @@
 """
 Resolve stored image_ids to RGB PNG or .npy bytes for remote model adapters.
 
-Sih raster loading is used only when the stored file is not a simple RGB image
+raster loading is used only when the stored file is not a simple RGB image
 (for example a GeoTIFF). Model-specific CLIP resize stays on the remote GPU host.
 """
 

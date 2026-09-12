@@ -1,12 +1,12 @@
 from app.agent.state import AgentState
 from app.classifier import QueryIntent, intent_classifier
 from app.exceptions import (
-    CDChatInferenceError,
     FusionError,
     InsufficientImagesError,
     InvalidClassifierOutputError,
     MissingImageIdError,
     QueryPipelineError,
+    RSICRCInferenceError,
 )
 from app.storage import resolve_image_path
 from app.sih_raster import pair_alignment
@@ -21,7 +21,7 @@ _INTENT_TOOL_MAP = {
 }
 
 _TOOL_MODEL_MAP = {
-    "ChangeDetection": "CDChat",
+    "ChangeDetection": "RSICRC",
     "VQA": "GeoLLaVA",
     "Captioning": "GeoLLaVA",
     "Grounding": "GeoLLaVA",
@@ -125,7 +125,7 @@ def dispatch_tools_node(state: AgentState) -> AgentState:
         raise
     except Exception as exc:
         if tool_name == "ChangeDetection":
-            raise CDChatInferenceError("CDChat inference failed.") from exc
+            raise RSICRCInferenceError("RSICRC inference failed.") from exc
         raise
 
     tool_outputs[tool_name] = output
@@ -135,10 +135,10 @@ def dispatch_tools_node(state: AgentState) -> AgentState:
         state["models_dispatched"].append(model_label)
     state["selected_model"] = model_label or tool_name
     if tool_name == "ChangeDetection":
-        state["cdchat_latency"] = float(output.get("elapsed_seconds") or 0.0)
+        state["rsicrc_latency"] = float(output.get("elapsed_seconds") or 0.0)
         state["execution_logs"].append(
-            f"[Node 4] Dispatched CDChat for BI_TEMPORAL_CHANGE "
-            f"(latency={state['cdchat_latency']}s, images={image_ids[:2]})."
+            f"[Node 4] Dispatched RSICRC for BI_TEMPORAL_CHANGE "
+            f"(latency={state['rsicrc_latency']}s, images={image_ids[:2]})."
         )
     else:
         state["execution_logs"].append(
@@ -202,27 +202,42 @@ def evidence_fusion_node(state: AgentState) -> AgentState:
 
 
 def generate_answer_node(state: AgentState) -> AgentState:
-    """Step 7: Generate Answer & Structured Report."""
+    """Step 7: Generate Answer & Structured Report.
+
+    Fusion still runs for audit/evidence, but an RSICRC caption is the
+    final answer and is never rewritten by the fusion decision.
+    """
     intent = state["intent"]
-    tool_outputs = state["tool_outputs"]
+    tool_outputs = state.get("tool_outputs") or {}
     fused = state.get("fused_evidence") or {}
     consolidated = fused.get("consolidated_evidence") or []
 
-    primary_output = list(tool_outputs.values())[0] if tool_outputs else {}
-    cdchat_answer = (fused.get("cdchat") or {}).get("answer")
-    if cdchat_answer and fused.get("decision"):
-        state["final_answer"] = f"{cdchat_answer} Fusion decision: {fused['decision']}."
-    elif "summary" in primary_output:
-        state["final_answer"] = primary_output["summary"]
-    elif "answer" in primary_output:
-        state["final_answer"] = primary_output["answer"]
-    elif "caption" in primary_output:
-        state["final_answer"] = primary_output["caption"]
-    elif consolidated:
-        state["final_answer"] = " ".join(str(item) for item in consolidated)
+    change_output = tool_outputs.get("ChangeDetection") or {}
+    rsicrc_caption = _first_text(
+        change_output.get("answer"),
+        change_output.get("summary"),
+        change_output.get("caption"),
+        (fused.get("rsicrc") or {}).get("answer"),
+    )
+    if rsicrc_caption:
+        state["final_answer"] = rsicrc_caption
     else:
-        state["final_answer"] = f"Analysis completed for intent '{intent}' across input images."
+        primary_output = next(iter(tool_outputs.values()), {}) if tool_outputs else {}
+        fallback = _first_text(
+            primary_output.get("summary"),
+            primary_output.get("answer"),
+            primary_output.get("caption"),
+        )
+        if fallback:
+            state["final_answer"] = fallback
+        elif consolidated:
+            state["final_answer"] = " ".join(str(item) for item in consolidated)
+        else:
+            state["final_answer"] = f"Analysis completed for intent '{intent}' across input images."
 
+    primary_output = tool_outputs.get("ChangeDetection") or next(
+        iter(tool_outputs.values()), {}
+    )
     scores = [state["intent_confidence"]]
     if isinstance(fused.get("fusion_confidence"), (int, float)):
         scores.append(float(fused["fusion_confidence"]))
@@ -231,3 +246,10 @@ def generate_answer_node(state: AgentState) -> AgentState:
     state["overall_confidence"] = round(min(scores), 2)
     state["execution_logs"].append(f"[Node 7] Generated final answer: {state['final_answer']}")
     return state
+
+
+def _first_text(*values) -> str:
+    for value in values:
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return ""

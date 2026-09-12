@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SatQuery AI — Mission Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F0E8;
+    --surface:#FFFDF8;
+    --surface-raised:#FFFFFF;
+    --primary:#556B2F;
+    --primary-dark:#3E4F22;
+    --primary-soft:#E7EBDC;
+    --accent:#C15A3C;
+    --accent-dark:#9C4630;
+    --accent-soft:#F5E1D8;
+    --sand:#D4A373;
+    --sand-soft:#F3E5D2;
+    --text:#2E2A25;
+    --text-muted:#7A6F60;
+    --text-faint:#A99E8E;
+    --border:#E3D9C6;
+    --border-strong:#CDBFA4;
+    --ok:#556B2F;
+    --warn:#C17A2E;
+    --danger:#A5402C;
+    --radius-lg:18px;
+    --radius-md:12px;
+    --radius-sm:8px;
+    --shadow-card:0 1px 2px rgba(46,42,37,.04), 0 8px 24px -12px rgba(85,107,47,.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--sand-soft); color:var(--text);}
+  button{font-family:inherit;}
+  input{font-family:inherit;}
+  .brand-face{font-family:'Fraunces', serif;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+
+  .app{ display:flex; flex-direction:column; height:100vh; min-height:640px; }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 20px;
+    background:var(--surface-raised);
+    border-bottom:1px solid var(--border);
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:11px; }
+  .brand-mark{
+    width:34px; height:34px; border-radius:9px;
+    background:linear-gradient(155deg, var(--primary), var(--primary-dark));
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .brand-mark svg{ width:18px; height:18px; }
+  .brand-text h1{
+    margin:0; font-size:16.5px; font-weight:600; letter-spacing:.1px;
+    font-family:'Fraunces', serif; color:var(--text);
+  }
+  .brand-text p{ margin:1px 0 0; font-size:11px; color:var(--text-muted); }
+
+  .topbar-right{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+
+  .endpoint-chip{
+    display:flex; align-items:center; gap:6px;
+    background:var(--bg); border:1px solid var(--border);
+    border-radius:999px; padding:5px 6px 5px 12px;
+  }
+  .endpoint-chip svg{ width:12px; height:12px; color:var(--text-faint); flex-shrink:0;}
+  .endpoint-chip input{
+    border:none; background:transparent; outline:none; width:186px;
+    font-size:11.5px; color:var(--text-muted);
+  }
+  .endpoint-chip button{
+    border:none; background:var(--surface-raised); border:1px solid var(--border);
+    color:var(--text-muted); border-radius:999px; padding:3px 10px; font-size:11px;
+    cursor:pointer;
+  }
+  .endpoint-chip button:hover{ border-color:var(--primary); color:var(--primary); }
+
+  .health-pills{ display:flex; gap:6px; flex-wrap:wrap; }
+  .pill{
+    display:flex; align-items:center; gap:5px;
+    font-size:11px; padding:5px 10px; border-radius:999px;
+    background:var(--bg); border:1px solid var(--border); color:var(--text-muted);
+    white-space:nowrap;
+  }
+  .dot{ width:6px; height:6px; border-radius:50%; background:var(--text-faint); flex-shrink:0; }
+  .dot.up{ background:var(--ok); box-shadow:0 0 0 2.5px var(--primary-soft); }
+  .dot.down{ background:var(--danger); box-shadow:0 0 0 2.5px var(--accent-soft); }
+  .dot.mock{ background:var(--warn); box-shadow:0 0 0 2.5px var(--sand-soft); }
+
+  .mode-badge{
+    font-size:10.5px; font-weight:600; letter-spacing:.4px;
+    padding:5px 10px; border-radius:7px;
+    border:1px solid var(--border-strong); color:var(--text-muted);
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .mode-badge.live{ color:var(--primary); border-color:var(--primary); background:var(--primary-soft); }
+  .mode-badge.mock{ color:var(--warn); border-color:var(--warn); background:var(--sand-soft); }
+
+  .icon-btn{
+    width:30px; height:30px; border-radius:8px; border:1px solid var(--border);
+    background:var(--surface-raised); color:var(--text-muted);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .icon-btn:hover{ border-color:var(--primary); color:var(--primary); }
+  .icon-btn svg{ width:14px; height:14px; }
+  .icon-btn.spinning svg{ animation:spin 0.9s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* ---------- Status banner ---------- */
+  .status-banner{
+    display:flex; align-items:center; gap:12px;
+    padding:11px 20px; margin:14px 20px 0;
+    background:var(--primary-soft); border:1px solid #DCE3CB;
+    border-radius:var(--radius-md); color:var(--primary-dark);
+    transition:background .2s, border-color .2s, color .2s;
+  }
+  .status-banner.warn{ background:var(--sand-soft); border-color:#E7CBA0; color:#8A5A22; }
+  .status-banner.error{ background:var(--accent-soft); border-color:#E5B9A4; color:var(--accent-dark); }
+  .status-banner svg{ width:16px; height:16px; flex-shrink:0; }
+  .status-banner .st-title{ font-weight:600; font-size:13px; }
+  .status-banner .st-sub{ font-size:12px; opacity:.85; margin-left:4px; }
+
+  /* ---------- Layout ---------- */
+  .layout{
+    flex:1; display:grid;
+    grid-template-columns: 272px 1fr 360px;
+    gap:14px; padding:14px 20px 20px; overflow:hidden; min-height:0;
+  }
+  .panel{
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius-lg); display:flex; flex-direction:column;
+    min-height:0; overflow:hidden;
+  }
+  .panel-header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:13px 16px; border-bottom:1px solid var(--border);
+    font-weight:600; font-size:13px; color:var(--text);
+    flex-shrink:0;
+  }
+  .panel-header .ph-icon{ display:flex; align-items:center; gap:8px; }
+  .panel-header svg{ width:14px; height:14px; color:var(--primary); }
+
+  /* ---------- Left: upload ---------- */
+  .panel-upload{ padding:16px; gap:18px; overflow-y:auto; }
+  .section-label{ font-size:11.5px; font-weight:600; color:var(--text-muted); margin:0 0 10px; }
+
+  .dropzone{
+    border:1.5px dashed var(--border-strong); border-radius:var(--radius-md);
+    padding:26px 14px; text-align:center; cursor:pointer;
+    background:var(--surface-raised); transition:border-color .15s, background .15s;
+  }
+  .dropzone:hover, .dropzone.dragover{ border-color:var(--primary); background:var(--primary-soft); }
+  .dropzone .dz-icon{
+    width:38px; height:38px; margin:0 auto 10px; border-radius:10px;
+    background:var(--accent-soft); display:flex; align-items:center; justify-content:center;
+  }
+  .dropzone .dz-icon svg{ width:18px; height:18px; color:var(--accent); }
+  .dropzone p{ margin:0; font-size:12.5px; color:var(--text-muted); }
+  .dropzone p b{ color:var(--accent); font-weight:600; cursor:pointer; }
+  .dropzone .dz-hint{ font-size:10.5px; color:var(--text-faint); margin-top:5px; }
+
+  .staging-list{ display:flex; flex-direction:column; gap:8px; }
+  .staging-list .empty{ font-size:12px; color:var(--text-faint); text-align:center; padding:14px 0; margin:0; }
+
+  .asset-card{
+    display:flex; align-items:center; gap:10px; padding:8px;
+    border:1px solid var(--border); border-radius:var(--radius-sm);
+    background:var(--surface-raised); cursor:pointer; position:relative;
+  }
+  .asset-card.selected{ border-color:var(--primary); background:var(--primary-soft); }
+  .asset-thumb{
+    width:38px; height:38px; border-radius:6px; object-fit:cover; flex-shrink:0;
+    background:var(--bg); border:1px solid var(--border);
+  }
+  .asset-meta{ min-width:0; flex:1; }
+  .asset-name{ font-size:12px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .asset-status{ font-size:10.5px; color:var(--text-faint); display:flex; align-items:center; gap:4px; margin-top:2px; }
+  .asset-status .dot{ width:5px; height:5px; }
+  .asset-remove{
+    border:none; background:none; color:var(--text-faint); cursor:pointer;
+    width:20px; height:20px; flex-shrink:0; border-radius:5px; display:flex; align-items:center; justify-content:center;
+  }
+  .asset-remove:hover{ background:var(--accent-soft); color:var(--accent-dark); }
+  .asset-remove svg{ width:11px; height:11px; }
+
+  .staging-hint{ font-size:10.5px; color:var(--text-faint); margin-top:2px; }
+
+  /* ---------- Center: viewport ---------- */
+  .panel-viewport{ }
+  .viewport-controls{ display:flex; gap:6px; }
+  .seg-btn{
+    font-size:11px; padding:5px 10px; border-radius:7px; border:1px solid var(--border);
+    background:var(--surface-raised); color:var(--text-muted); cursor:pointer;
+  }
+  .seg-btn.active{ background:var(--primary); border-color:var(--primary); color:#fff; }
+
+  .viewport-body{
+    flex:1; min-height:0; position:relative; background:#242017;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+  .viewport-placeholder{ text-align:center; color:#9C9384; padding:20px; }
+  .viewport-placeholder .vp-icon{
+    width:46px; height:46px; margin:0 auto 12px; border-radius:12px;
+    background:rgba(255,255,255,.05); display:flex; align-items:center; justify-content:center;
+  }
+  .viewport-placeholder .vp-icon svg{ width:22px; height:22px; color:#B8AC96; }
+  .viewport-placeholder p.vp-title{ margin:0 0 4px; font-size:13px; color:#E6E0D3; font-weight:500; }
+  .viewport-placeholder p.vp-sub{ margin:0; font-size:11.5px; color:#8C8373; max-width:220px; }
+
+  .single-view{ position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+  .single-view img{ max-width:100%; max-height:100%; object-fit:contain; display:block; }
+  #bboxCanvas{ position:absolute; top:0; left:0; pointer-events:none; }
+
+  .compare-view{ position:relative; width:100%; height:100%; overflow:hidden; user-select:none; }
+  .compare-view .cmp-base, .compare-view .cmp-overlay{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  }
+  .compare-view img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .compare-view .cmp-overlay{ clip-path:inset(0 50% 0 0); }
+  .cmp-tag{
+    position:absolute; top:10px; font-size:10.5px; font-family:'IBM Plex Mono',monospace;
+    background:rgba(30,26,20,.65); color:#F0EAD9; padding:3px 8px; border-radius:5px;
+  }
+  .cmp-tag.left{ left:10px; } .cmp-tag.right{ right:10px; }
+  .cmp-handle{
+    position:absolute; top:0; bottom:0; left:50%; width:2px; background:var(--sand);
+    cursor:ew-resize; transform:translateX(-1px);
+  }
+  .cmp-handle::after{
+    content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:30px; height:30px; border-radius:50%; background:var(--surface-raised);
+    border:2px solid var(--sand);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23C15A3C' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 18 3 12 9 6'/%3E%3Cpolyline points='15 6 21 12 15 18'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:center;
+  }
+  .cmp-range{ position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:ew-resize; margin:0; }
+
+  .evidence-strip{
+    border-top:1px solid var(--border); padding:12px 16px; flex-shrink:0;
+    display:none; background:var(--surface);
+  }
+  .evidence-strip.show{ display:block; }
+  .evidence-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px; }
+  .metric-card{
+    background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:9px 11px;
+  }
+  .metric-card .m-label{ font-size:10px; color:var(--text-muted); margin-bottom:3px; }
+  .metric-card .m-value{ font-size:15px; font-weight:600; font-family:'IBM Plex Mono',monospace; color:var(--primary-dark); }
+  .model-evidence{ margin-top:10px; }
+  .evidence-row{ display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:11.5px; }
+  .evidence-row .er-label{ width:110px; flex-shrink:0; color:var(--text-muted); }
+  .er-bar{ flex:1; height:6px; border-radius:4px; background:var(--border); overflow:hidden; }
+  .er-bar-fill{ height:100%; background:linear-gradient(90deg, var(--primary), var(--accent)); border-radius:4px; }
+  .er-score{ width:34px; text-align:right; font-family:'IBM Plex Mono',monospace; color:var(--text); flex-shrink:0; }
+
+  /* ---------- Right: agent ---------- */
+  .panel-agent{ }
+  .chat-scroll{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:14px; min-height:0; }
+  .chat-empty{ margin:auto; text-align:center; color:var(--text-faint); padding:20px; }
+  .chat-empty svg{ width:26px; height:26px; margin-bottom:10px; opacity:.6; }
+  .chat-empty p{ margin:0; font-size:12px; }
+
+  .msg-user{ align-self:flex-end; max-width:88%; }
+  .msg-user .bubble{
+    background:var(--primary); color:#fff; padding:9px 13px; border-radius:14px 14px 3px 14px;
+    font-size:12.5px;
+  }
+  .msg-agent{ max-width:100%; }
+  .agent-card{
+    border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface-raised);
+    overflow:hidden;
+  }
+  .agent-card-head{
+    display:flex; align-items:center; justify-content:space-between; padding:9px 12px;
+    background:var(--bg); border-bottom:1px solid var(--border);
+  }
+  .agent-tool-badge{
+    font-size:10.5px; font-weight:600; color:var(--accent-dark); background:var(--accent-soft);
+    padding:3px 8px; border-radius:6px; font-family:'IBM Plex Mono',monospace;
+  }
+  .agent-conf{ font-size:10.5px; color:var(--text-muted); font-family:'IBM Plex Mono',monospace; }
+  .agent-card-body{ padding:11px 12px; font-size:12.5px; }
+  .agent-card-body p{ margin:0 0 8px; }
+  .agent-card-body p:last-child{ margin-bottom:0; }
+  .agent-model-line{ margin-top:10px !important; color:var(--text-muted); font-size:11.5px; }
+  .conf-bar{ height:5px; border-radius:3px; background:var(--border); overflow:hidden; margin-top:8px; }
+  .conf-bar-fill{ height:100%; background:linear-gradient(90deg,var(--primary),var(--accent)); }
+
+  .trace-toggle{
+    font-size:11px; color:var(--primary); background:none; border:none; cursor:pointer;
+    padding:0; margin-top:8px; display:flex; align-items:center; gap:4px; font-weight:500;
+  }
+  .trace-toggle svg{ width:10px; height:10px; transition:transform .15s; }
+  .trace-toggle.open svg{ transform:rotate(90deg); }
+  .trace-steps{ display:none; margin-top:8px; padding-top:8px; border-top:1px dashed var(--border); }
+  .trace-steps.show{ display:block; }
+  .trace-step{ display:flex; gap:8px; font-size:11px; color:var(--text-muted); padding:3px 0; }
+  .trace-step .ts-dot{ width:5px; height:5px; border-radius:50%; background:var(--sand); margin-top:5px; flex-shrink:0; }
+
+  .agent-card-actions{ display:flex; gap:8px; padding:0 12px 11px; }
+  .mini-btn{
+    font-size:11px; padding:5px 9px; border-radius:6px; border:1px solid var(--border);
+    background:var(--surface-raised); color:var(--text-muted); cursor:pointer; display:flex; gap:5px; align-items:center;
+  }
+  .mini-btn:hover{ border-color:var(--primary); color:var(--primary); }
+  .mini-btn svg{ width:11px; height:11px; }
+  .mini-btn.err{ color:var(--danger); border-color:#E7C3B7; background:var(--accent-soft); }
+
+  .msg-error .bubble{
+    background:var(--accent-soft); color:var(--accent-dark); border:1px solid #E7C3B7;
+    padding:9px 13px; border-radius:12px; font-size:12px;
+  }
+  .msg-loading{ display:flex; align-items:center; gap:8px; color:var(--text-muted); font-size:12px; padding:2px 2px; }
+  .dot-flash{ display:flex; gap:3px; }
+  .dot-flash span{ width:5px; height:5px; border-radius:50%; background:var(--accent); animation:flash 1s infinite ease-in-out; }
+  .dot-flash span:nth-child(2){ animation-delay:.15s; } .dot-flash span:nth-child(3){ animation-delay:.3s; }
+  @keyframes flash{ 0%,80%,100%{ opacity:.25; } 40%{ opacity:1; } }
+
+  .quick-actions{ display:flex; gap:6px; flex-wrap:wrap; padding:0 16px 12px; flex-shrink:0; }
+  .chip{
+    font-size:11px; padding:6px 10px; border-radius:999px; border:1px solid var(--border);
+    background:var(--surface-raised); color:var(--text-muted); cursor:pointer;
+  }
+  .chip:hover:not(:disabled){ border-color:var(--accent); color:var(--accent-dark); }
+  .chip:disabled{ opacity:.5; cursor:not-allowed; }
+
+  .query-input-row{
+    display:flex; gap:8px; padding:14px 16px; border-top:1px solid var(--border); flex-shrink:0;
+  }
+  .query-input-row input{
+    flex:1; border:1px solid var(--border); border-radius:10px; padding:10px 12px;
+    font-size:12.5px; outline:none; background:var(--surface-raised); color:var(--text);
+  }
+  .query-input-row input:focus{ border-color:var(--primary); }
+  .query-input-row input:disabled{ background:var(--bg); color:var(--text-faint); }
+  .send-btn{
+    border:none; background:var(--primary); color:#fff; border-radius:10px; padding:0 16px;
+    display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12.5px; font-weight:500;
+  }
+  .send-btn:hover:not(:disabled){ background:var(--primary-dark); }
+  .send-btn:disabled{ background:var(--border-strong); cursor:not-allowed; }
+  .send-btn svg{ width:13px; height:13px; }
+
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:var(--border-strong); border-radius:4px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+
+  @media (max-width:980px){
+    .layout{ grid-template-columns:1fr; grid-auto-rows:minmax(280px,auto); overflow-y:auto; }
+    .app{ height:auto; min-height:100vh; }
+    .panel{ min-height:340px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#F4F0E8" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.7-3.8-9s1.3-6.4 3.8-9z"/></svg>
+      </div>
+      <div class="brand-text">
+        <h1>GeoVista</h1>
+        <p>Agentic Remote-Sensing Console</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="endpoint-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.07 0l1.71-1.71a5 5 0 00-7.07-7.07L10 6"/><path d="M14 11a5 5 0 00-7.07 0L5.22 12.7a5 5 0 007.07 7.07L14 18"/></svg>
+        <input id="endpointInput" class="mono" value="http://localhost:8000/api/v1" spellcheck="false">
+        <button id="endpointSave">Connect</button>
+      </div>
+      <div class="health-pills" id="healthPills">
+        <span class="pill"><span class="dot" data-svc="llava"></span>GeoLLaVA</span>
+        <span class="pill"><span class="dot" data-svc="rsicrc"></span>RSICRC</span>
+        <span class="pill"><span class="dot" data-svc="popeye"></span>Popeye</span>
+        <span class="pill"><span class="dot" data-svc="resnet"></span>ResNet-50</span>
+      </div>
+      <span class="mode-badge" id="modeBadge">MODE: —</span>
+      <button class="icon-btn" id="refreshBtn" title="Recheck model health">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="status-banner" id="statusBanner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <span class="st-title">Awaiting imagery</span>
+    <span class="st-sub">Stage an image to begin analysis.</span>
+  </div>
+
+  <main class="layout">
+
+    <!-- LEFT: Upload -->
+    <aside class="panel panel-upload">
+      <div>
+        <p class="section-label">Asset Upload</p>
+        <div class="dropzone" id="dropzone">
+          <div class="dz-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <p>Drag imagery here or <b id="browseLink">browse</b></p>
+          <p class="dz-hint">.png · .jpg · .tif — single, T1/T2, or optical/SAR pairs</p>
+          <input type="file" id="fileInput" accept="image/*,.tif,.tiff" multiple style="display:none">
+        </div>
+      </div>
+      <div style="flex:1; min-height:0; display:flex; flex-direction:column;">
+        <p class="section-label">Staging Tray</p>
+        <div class="staging-list" id="stagingList">
+          <p class="empty">No assets staged yet.</p>
+        </div>
+        <p class="staging-hint" id="stagingHint"></p>
+      </div>
+    </aside>
+
+    <!-- CENTER: Viewport -->
+    <section class="panel panel-viewport">
+      <div class="panel-header">
+        <div class="ph-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          Satellite Viewport
+        </div>
+        <div class="viewport-controls" id="viewportControls" style="display:none;">
+          <button class="seg-btn active" data-mode="single">Single</button>
+          <button class="seg-btn" data-mode="compare">Compare</button>
+        </div>
+      </div>
+      <div class="viewport-body" id="viewportBody">
+        <div class="viewport-placeholder" id="viewportPlaceholder">
+          <div class="vp-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          </div>
+          <p class="vp-title">No imagery staged</p>
+          <p class="vp-sub">Upload a scene from the left panel to enable analysis.</p>
+        </div>
+      </div>
+      <div class="evidence-strip" id="evidenceStrip">
+        <div class="evidence-grid" id="evidenceGrid"></div>
+        <div class="model-evidence" id="modelEvidence"></div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Agent -->
+    <aside class="panel panel-agent">
+      <div class="panel-header">
+        <div class="ph-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 013 3v2a3 3 0 01-6 0V5a3 3 0 013-3z"/><path d="M19 10v1a7 7 0 01-14 0v-1M12 18v4M8 22h8"/></svg>
+          Agent Intelligence
+        </div>
+      </div>
+      <div class="chat-scroll" id="chatScroll">
+        <div class="chat-empty" id="chatEmpty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          <p>Run a query to see the agent's analysis here.</p>
+        </div>
+      </div>
+      <div class="quick-actions" id="quickActions">
+        <button class="chip" disabled data-q="Identify structural features in this scene.">Identify structural features</button>
+        <button class="chip" disabled data-q="Describe this scene.">Describe this scene</button>
+        <button class="chip" disabled data-q="What changed between these two images?">Detect changes</button>
+        <button class="chip" disabled data-q="Fuse the optical and SAR imagery and explain what you see.">Optical + SAR fusion</button>
+      </div>
+      <div class="query-input-row">
+        <input id="queryInput" placeholder="Stage imagery to enable querying…" disabled>
+        <button class="send-btn" id="sendBtn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Send
+        </button>
+      </div>
+    </aside>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------------- State ----------------
+  let API_BASE = document.getElementById('endpointInput').value.replace(/\/+$/,'');
+  let mockMode = null; // true/false/null(unknown)
+  const assets = []; // {localId, file, url, name, fileId, status: 'pending'|'uploaded'|'error'}
+  let selected = []; // localIds selected for query
+  let viewMode = 'single';
+  let lastTraceId = null;
+  let localIdCounter = 0;
+
+  // ---------------- Elements ----------------
+  const el = (id) => document.getElementById(id);
+  const dropzone = el('dropzone');
+  const fileInput = el('fileInput');
+  const browseLink = el('browseLink');
+  const stagingList = el('stagingList');
+  const stagingHint = el('stagingHint');
+  const statusBanner = el('statusBanner');
+  const viewportBody = el('viewportBody');
+  const viewportPlaceholder = el('viewportPlaceholder');
+  const viewportControls = el('viewportControls');
+  const evidenceStrip = el('evidenceStrip');
+  const evidenceGrid = el('evidenceGrid');
+  const modelEvidence = el('modelEvidence');
+  const chatScroll = el('chatScroll');
+  const chatEmpty = el('chatEmpty');
+  const quickActions = el('quickActions');
+  const queryInput = el('queryInput');
+  const sendBtn = el('sendBtn');
+  const modeBadge = el('modeBadge');
+  const refreshBtn = el('refreshBtn');
+  const endpointInput = el('endpointInput');
+  const endpointSave = el('endpointSave');
+
+  // ---------------- Utilities ----------------
+  function esc(s){
+    return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function setStatus(kind, title, sub){
+    statusBanner.className = 'status-banner' + (kind === 'ok' ? '' : ' ' + kind);
+    statusBanner.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>' +
+      '<span class="st-title">' + esc(title) + '</span><span class="st-sub">' + esc(sub) + '</span>';
+  }
+
+  function refreshInteractivity(){
+    const hasAssets = assets.some(a => a.status !== 'error');
+    queryInput.disabled = !hasAssets;
+    sendBtn.disabled = !hasAssets;
+    queryInput.placeholder = hasAssets ? 'Ask the agent about the selected imagery…' : 'Stage imagery to enable querying…';
+    quickActions.querySelectorAll('.chip').forEach(c => c.disabled = !hasAssets);
+
+    if (!assets.length){
+      setStatus('ok', 'Awaiting imagery', 'Stage an image to begin analysis.');
+    } else if (selected.length === 0){
+      setStatus('warn', 'Imagery staged', 'Select one or more assets in the tray to query them.');
+    } else if (selected.length === 1){
+      setStatus('ok', 'Ready', '1 asset selected — VQA, captioning, and grounding available.');
+    } else {
+      setStatus('ok', 'Ready', selected.length + ' assets selected — change detection and optical/SAR fusion available.');
+    }
+  }
+
+  // ---------------- Health check ----------------
+  async function checkHealth(){
+    refreshBtn.classList.add('spinning');
+    try{
+      const res = await fetch(API_BASE + '/models/health', { method:'GET' });
+      if (!res.ok) throw new Error('status ' + res.status);
+      const data = await res.json();
+      applyHealth(data);
+    } catch(e){
+      document.querySelectorAll('#healthPills .dot').forEach(d => { d.className = 'dot down'; });
+      modeBadge.textContent = 'MODE: OFFLINE';
+      modeBadge.className = 'mode-badge';
+    }
+    refreshBtn.classList.remove('spinning');
+  }
+
+  function findServiceEntry(data, keys){
+    if (!data) return null;
+    for (const k of keys){
+      if (data[k]) return data[k];
+      const found = Object.keys(data).find(dk => dk.toLowerCase().includes(k));
+      if (found) return data[found];
+    }
+    return null;
+  }
+
+  function applyHealth(data){
+    const svcMap = { llava:['llava','geollava'], rsicrc:['rsicrc'], popeye:['popeye'], resnet:['resnet','resnet50','resnet-50'] };
+    let anyMock = false, anyKnown = false;
+    document.querySelectorAll('#healthPills .dot').forEach(dot => {
+      const svc = dot.getAttribute('data-svc');
+      const entry = findServiceEntry(data, svcMap[svc] || [svc]);
+      if (entry == null){ dot.className = 'dot'; return; }
+      anyKnown = true;
+      const mode = (typeof entry === 'object') ? String(entry.mode || '') : '';
+      const status = (typeof entry === 'object')
+        ? (entry.status || entry.state || (entry.reachable ? 'up' : (entry.healthy ? 'up' : 'down')))
+        : entry;
+      const isMock = (typeof entry === 'object') && (entry.mock === true || mode === 'mock' || String(status).toLowerCase().includes('mock'));
+      if (isMock){ dot.className = 'dot mock'; anyMock = true; }
+      else if (String(status).toLowerCase().match(/up|ok|healthy|true|remote/)) dot.className = 'dot up';
+      else dot.className = 'dot down';
+    });
+    mockMode = (data.mock_mode === true) || anyMock;
+    if (!anyKnown){
+      modeBadge.textContent = 'MODE: UNKNOWN';
+      modeBadge.className = 'mode-badge';
+    } else {
+      modeBadge.textContent = mockMode ? 'MODEL_MOCK_MODE' : 'MODE: LIVE';
+      modeBadge.className = 'mode-badge ' + (mockMode ? 'mock' : 'live');
+    }
+  }
+
+  refreshBtn.addEventListener('click', checkHealth);
+  endpointSave.addEventListener('click', () => {
+    const v = endpointInput.value.trim().replace(/\/+$/,'');
+    if (v){ API_BASE = v; checkHealth(); }
+  });
+
+  // ---------------- Upload handling ----------------
+  browseLink.addEventListener('click', () => fileInput.click());
+  dropzone.addEventListener('click', (e) => { if (e.target !== browseLink) fileInput.click(); });
+  ['dragover','dragenter'].forEach(evt => dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.add('dragover'); }));
+  ['dragleave','drop'].forEach(evt => dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.remove('dragover'); }));
+  dropzone.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
+  fileInput.addEventListener('change', e => { handleFiles(e.target.files); fileInput.value = ''; });
+
+  function handleFiles(fileList){
+    Array.from(fileList).forEach(file => {
+      const localId = 'a' + (++localIdCounter);
+      const url = URL.createObjectURL(file);
+      const asset = { localId, file, url, name: file.name, fileId: null, status: 'pending' };
+      assets.push(asset);
+      renderStaging();
+      uploadAsset(asset);
+    });
+  }
+
+  async function uploadAsset(asset){
+    try{
+      const fd = new FormData();
+      fd.append('files', asset.file, asset.name);
+      const res = await fetch(API_BASE + '/upload', { method:'POST', body: fd });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const fid = extractFileId(data, asset.name);
+      asset.fileId = fid || ('local-' + asset.localId);
+      asset.status = fid ? 'uploaded' : 'local';
+    } catch(err){
+      asset.status = 'unsynced';
+      asset.error = err.message;
+    }
+    renderStaging();
+    refreshInteractivity();
+  }
+
+  function extractFileId(data, filename){
+    if (!data) return null;
+    if (typeof data === 'string') return data;
+    if (data.file_id) return data.file_id;
+    if (Array.isArray(data.file_ids) && data.file_ids.length) return data.file_ids[0];
+    if (Array.isArray(data.files) && data.files.length){
+      const match = data.files.find(f => f.filename === filename) || data.files[0];
+      return match.file_id || match.id || match;
+    }
+    if (Array.isArray(data) && data.length) return data[0].file_id || data[0].id || data[0];
+    return null;
+  }
+
+  function renderStaging(){
+    if (!assets.length){
+      stagingList.innerHTML = '<p class="empty">No assets staged yet.</p>';
+      stagingHint.textContent = '';
+      renderViewport();
+      return;
+    }
+    stagingList.innerHTML = assets.map(a => {
+      const sel = selected.includes(a.localId);
+      let statusDot = 'dot', statusText = 'Uploading…';
+      if (a.status === 'uploaded'){ statusDot = 'dot up'; statusText = 'Ready · ' + a.fileId; }
+      else if (a.status === 'local'){ statusDot = 'dot mock'; statusText = 'Staged locally'; }
+      else if (a.status === 'unsynced'){ statusDot = 'dot down'; statusText = 'Upload failed — click retry'; }
+      return '<div class="asset-card' + (sel ? ' selected':'') + '" data-id="' + a.localId + '">' +
+        '<img class="asset-thumb" src="' + a.url + '">' +
+        '<div class="asset-meta"><div class="asset-name">' + esc(a.name) + '</div>' +
+        '<div class="asset-status"><span class="' + statusDot + '"></span>' + esc(statusText) + '</div></div>' +
+        '<button class="asset-remove" data-remove="' + a.localId + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' +
+      '</div>';
+    }).join('');
+
+    stagingList.querySelectorAll('.asset-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.asset-remove')) return;
+        const id = card.getAttribute('data-id');
+        const asset = assets.find(a => a.localId === id);
+        if (asset.status === 'unsynced'){ asset.status = 'pending'; renderStaging(); uploadAsset(asset); return; }
+        toggleSelect(id);
+      });
+    });
+    stagingList.querySelectorAll('[data-remove]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-remove');
+        const idx = assets.findIndex(a => a.localId === id);
+        if (idx > -1){ URL.revokeObjectURL(assets[idx].url); assets.splice(idx,1); }
+        selected = selected.filter(s => s !== id);
+        renderStaging();
+        refreshInteractivity();
+      });
+    });
+
+    stagingHint.textContent = selected.length ? selected.length + ' selected — click assets to change selection.' : 'Click an asset to select it for your next query.';
+    renderViewport();
+  }
+
+  function toggleSelect(id){
+    if (selected.includes(id)) selected = selected.filter(s => s !== id);
+    else {
+      selected.push(id);
+      if (selected.length > 2) selected.shift();
+    }
+    renderStaging();
+    refreshInteractivity();
+  }
+
+  // ---------------- Viewport ----------------
+  document.querySelectorAll('.seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      viewMode = btn.getAttribute('data-mode');
+      document.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b === btn));
+      renderViewport();
+    });
+  });
+
+  function renderViewport(){
+    const chosen = selected.map(id => assets.find(a => a.localId === id)).filter(Boolean);
+    if (!chosen.length){
+      viewportBody.innerHTML = '';
+      viewportBody.appendChild(viewportPlaceholder);
+      viewportControls.style.display = 'none';
+      return;
+    }
+    viewportControls.style.display = chosen.length >= 2 ? 'flex' : 'none';
+
+    if (chosen.length >= 2 && viewMode === 'compare'){
+      const [a,b] = chosen;
+      viewportBody.innerHTML =
+        '<div class="compare-view" id="cmpView">' +
+          '<div class="cmp-base"><img src="' + a.url + '"></div>' +
+          '<div class="cmp-overlay" id="cmpOverlay"><img src="' + b.url + '"></div>' +
+          '<span class="cmp-tag left">T1 · ' + esc(a.name) + '</span>' +
+          '<span class="cmp-tag right">T2 · ' + esc(b.name) + '</span>' +
+          '<div class="cmp-handle" id="cmpHandle"></div>' +
+          '<input type="range" class="cmp-range" id="cmpRange" min="0" max="100" value="50">' +
+        '</div>';
+      const overlay = el('cmpOverlay'), handle = el('cmpHandle'), range = el('cmpRange');
+      range.addEventListener('input', () => {
+        const v = range.value;
+        overlay.style.clipPath = 'inset(0 ' + (100 - v) + '% 0 0)';
+        handle.style.left = v + '%';
+      });
+    } else {
+      const a = chosen[0];
+      viewportBody.innerHTML = '<div class="single-view"><img id="mainImg" src="' + a.url + '"><canvas id="bboxCanvas"></canvas></div>';
+      if (currentBoxes && currentBoxes.assetId === a.localId){
+        drawBoxes(currentBoxes.boxes);
+      }
+    }
+  }
+
+  let currentBoxes = null;
+  function drawBoxes(boxes){
+    const img = el('mainImg');
+    const canvas = el('bboxCanvas');
+    if (!img || !canvas) return;
+    const draw = () => {
+      const rect = img.getBoundingClientRect();
+      canvas.width = rect.width; canvas.height = rect.height;
+      canvas.style.width = rect.width + 'px'; canvas.style.height = rect.height + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      const nw = img.naturalWidth || 1, nh = img.naturalHeight || 1;
+      const sx = rect.width / nw, sy = rect.height / nh;
+      boxes.forEach((box, i) => {
+        let x,y,w,h;
+        if (Array.isArray(box.bbox || box.box || box)){
+          const b = box.bbox || box.box || box;
+          if (b.length === 4){ x=b[0]; y=b[1]; w=b[2]-b[0]; h=b[3]-b[1]; }
+        } else {
+          x = box.x; y = box.y; w = box.w ?? box.width; h = box.h ?? box.height;
+        }
+        if ([x,y,w,h].some(v => typeof v !== 'number')) return;
+        // handle normalized 0-1 coords
+        if (x<=1 && y<=1 && w<=1 && h<=1 && nw>1){ x*=nw; y*=nh; w*=nw; h*=nh; }
+        ctx.strokeStyle = '#C15A3C'; ctx.lineWidth = 2;
+        ctx.strokeRect(x*sx, y*sy, w*sx, h*sy);
+        const label = box.label || box.class || ('#' + (i+1));
+        const score = box.score ?? box.confidence;
+        const text = label + (score != null ? ' ' + (Math.round(score*100)/100) : '');
+        ctx.font = '11px IBM Plex Mono, monospace';
+        const tw = ctx.measureText(text).width + 8;
+        ctx.fillStyle = '#C15A3C';
+        ctx.fillRect(x*sx, Math.max(0,y*sy-16), tw, 16);
+        ctx.fillStyle = '#FFFDF8';
+        ctx.fillText(text, x*sx+4, Math.max(11,y*sy-4));
+      });
+    };
+    if (img.complete) draw(); else img.onload = draw;
+    window.addEventListener('resize', draw, { once:true });
+  }
+
+  // ---------------- Chat / Query ----------------
+  function appendUserMsg(text){
+    chatEmpty.remove();
+    const div = document.createElement('div');
+    div.className = 'msg-user';
+    div.innerHTML = '<div class="bubble">' + esc(text) + '</div>';
+    chatScroll.appendChild(div);
+    chatScroll.scrollTop = chatScroll.scrollHeight;
+  }
+
+  function appendLoading(){
+    const div = document.createElement('div');
+    div.className = 'msg-loading';
+    div.id = 'loadingMsg';
+    div.innerHTML = '<div class="dot-flash"><span></span><span></span><span></span></div> Agent is analyzing…';
+    chatScroll.appendChild(div);
+    chatScroll.scrollTop = chatScroll.scrollHeight;
+  }
+  function removeLoading(){ const l = el('loadingMsg'); if (l) l.remove(); }
+
+  function appendError(message){
+    const div = document.createElement('div');
+    div.className = 'msg-agent msg-error';
+    div.innerHTML = '<div class="bubble"><b>Query failed.</b> ' + esc(message) + '</div>';
+    chatScroll.appendChild(div);
+    chatScroll.scrollTop = chatScroll.scrollHeight;
+  }
+
+  function pick(obj, keys, dflt){
+    for (const k of keys){ if (obj && obj[k] !== undefined && obj[k] !== null) return obj[k]; }
+    return dflt;
+  }
+
+  function resolveModelName(data){
+    const trace = data && data.execution_trace;
+    const known = ['RSICRC','GeoLLaVA','Popeye','ResNet-50','ResNet'];
+    const dispatched = data.models_dispatched || (trace && trace.models_dispatched) || [];
+    const fromList = dispatched.find(name => known.includes(String(name)));
+    return data.selected_model
+      || (trace && trace.selected_model)
+      || data.model_used
+      || data.model
+      || data.tool
+      || fromList
+      || 'Agent';
+  }
+
+  function appendAgentResponse(data){
+    const answer = pick(data, ['answer','text','description','response','result'], JSON.stringify(data));
+    const confidence = pick(data, ['confidence','confidence_score','score']);
+    const modelName = resolveModelName(data);
+    const intent = pick(data, ['intent']);
+    const evidence = pick(data, ['evidence','model_evidence','scores']);
+    const boxes = pick(data, ['bounding_boxes','boxes','detections','grounding']);
+    const mask = pick(data, ['mask','masks','segmentation']);
+    const trace = pick(data, ['trace','execution_summary','steps','execution_trace']);
+    const traceId = (trace && trace.trace_id) || pick(data, ['trace_id','id']);
+    if (traceId) lastTraceId = traceId;
+
+    const cardId = 'card' + Date.now();
+    const div = document.createElement('div');
+    div.className = 'msg-agent';
+
+    let html = '<div class="agent-card">' +
+      '<div class="agent-card-head"><span class="agent-tool-badge">' + esc(String(modelName)) + '</span>';
+    if (confidence != null){
+      html += '<span class="agent-conf">confidence ' + (typeof confidence === 'number' ? Math.round(confidence*100)/100 : esc(confidence)) + '</span>';
+    }
+    html += '</div><div class="agent-card-body">';
+    html += '<p>' + esc(String(answer)) + '</p>';
+    html += '<p class="agent-model-line">Analyzed with <strong>' + esc(String(modelName)) + '</strong>';
+    if (intent) html += ' · intent ' + esc(String(intent));
+    html += '</p>';
+    if (typeof confidence === 'number'){
+      html += '<div class="conf-bar"><div class="conf-bar-fill" style="width:' + Math.min(100, Math.round(confidence*100)) + '%"></div></div>';
+    }
+    if (mask) html += '<p style="margin-top:8px;color:var(--text-muted);font-size:11px;">Segmentation mask returned by the model — view in Evidence panel below the viewport.</p>';
+
+    let stepsArr = [];
+    if (Array.isArray(trace)) stepsArr = trace.map(s => (typeof s === 'string') ? s : (s.step || s.name || JSON.stringify(s)));
+    else if (trace && typeof trace === 'object') stepsArr = Object.entries(trace).map(([k,v]) => k + ': ' + (typeof v === 'string' ? v : JSON.stringify(v)));
+
+    if (stepsArr.length){
+      html += '<button class="trace-toggle" data-target="' + cardId + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg> Execution summary (' + stepsArr.length + ' steps)</button>';
+      html += '<div class="trace-steps" id="' + cardId + '">' + stepsArr.map(s => '<div class="trace-step"><span class="ts-dot"></span>' + esc(s) + '</div>').join('') + '</div>';
+    }
+    html += '</div>';
+    html += '<div class="agent-card-actions">';
+    if (evidence) html += '<button class="mini-btn" data-action="evidence"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View evidence</button>';
+    html += '<button class="mini-btn" data-action="report">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Download report</button>';
+    html += '</div></div>';
+
+    div.innerHTML = html;
+    chatScroll.appendChild(div);
+    chatScroll.scrollTop = chatScroll.scrollHeight;
+
+    const toggleBtn = div.querySelector('.trace-toggle');
+    if (toggleBtn) toggleBtn.addEventListener('click', () => {
+      toggleBtn.classList.toggle('open');
+      el(cardId).classList.toggle('show');
+    });
+    const evBtn = div.querySelector('[data-action="evidence"]');
+    if (evBtn) evBtn.addEventListener('click', () => showEvidence(data, evidence));
+    const repBtn = div.querySelector('[data-action="report"]');
+    if (repBtn) repBtn.addEventListener('click', () => downloadReport(traceId || lastTraceId, repBtn));
+
+    if (boxes && Array.isArray(boxes) && boxes.length && selected.length === 1){
+      currentBoxes = { assetId: selected[0], boxes };
+      renderViewport();
+    }
+    if (Array.isArray(chosenMetricsFrom(data)) ) {}
+    showEvidence(data, evidence, true);
+  }
+
+  function chosenMetricsFrom(){ return null; }
+
+  function showEvidence(data, evidence, quiet){
+    const metricKeys = ['change_area','area','vegetation_loss','model_agreement','confidence'];
+    const metrics = [];
+    metricKeys.forEach(k => {
+      const found = Object.keys(data || {}).find(dk => dk.toLowerCase() === k);
+      if (found) metrics.push({ label: found.replace(/_/g,' '), value: data[found] });
+    });
+    evidenceGrid.innerHTML = metrics.map(m =>
+      '<div class="metric-card"><div class="m-label">' + esc(m.label) + '</div><div class="m-value">' + esc(m.value) + '</div></div>'
+    ).join('');
+
+    let evRows = '';
+    if (Array.isArray(evidence)){
+      evRows = evidence.map(e => {
+        const label = e.label || e.model || e.name || 'model';
+        const score = e.score ?? e.confidence ?? 0;
+        return evRow(label, score);
+      }).join('');
+    } else if (evidence && typeof evidence === 'object'){
+      evRows = Object.entries(evidence).map(([k,v]) => evRow(k, typeof v === 'number' ? v : (v.score ?? v.confidence ?? 0))).join('');
+    }
+    modelEvidence.innerHTML = evRows ? '<p class="section-label" style="margin-bottom:8px;">Evidence from models</p>' + evRows : '';
+
+    if (metrics.length || evRows){
+      evidenceStrip.classList.add('show');
+      if (!quiet) evidenceStrip.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    }
+  }
+  function evRow(label, score){
+    const pct = Math.max(0, Math.min(100, Math.round((score||0)*100)));
+    return '<div class="evidence-row"><span class="er-label">' + esc(label) + '</span><div class="er-bar"><div class="er-bar-fill" style="width:' + pct + '%"></div></div><span class="er-score">' + (Math.round((score||0)*100)/100) + '</span></div>';
+  }
+
+  async function downloadReport(traceId, btn){
+    const original = btn.innerHTML;
+    btn.innerHTML = 'Generating…';
+    btn.disabled = true;
+    try{
+      const body = { format: 'pdf' };
+      if (traceId) body.trace_id = traceId;
+      const res = await fetch(API_BASE + '/report', {
+        method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const ctype = res.headers.get('content-type') || '';
+      const blob = await res.blob();
+      if (ctype.includes('application/pdf') || blob.type === 'application/pdf'){
+        triggerDownload(blob, 'satquery-report.pdf');
+      } else if (ctype.includes('application/json')){
+        const data = JSON.parse(await blob.text());
+        throw new Error(data.detail || 'Report endpoint returned JSON instead of PDF.');
+      } else {
+        triggerDownload(blob, 'satquery-report.pdf');
+      }
+    } catch(err){
+      btn.classList.add('err');
+      btn.innerHTML = 'Report unavailable';
+      setTimeout(() => { btn.classList.remove('err'); btn.innerHTML = original; btn.disabled = false; }, 2400);
+      return;
+    }
+    btn.innerHTML = original;
+    btn.disabled = false;
+  }
+  function triggerDownload(blob, filename){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async function runQuery(text){
+    if (!text || !text.trim()) return;
+    const chosen = selected.length ? selected : assets.map(a => a.localId);
+    const imageIds = chosen.map(id => (assets.find(a => a.localId === id) || {}).fileId).filter(Boolean);
+    appendUserMsg(text);
+    appendLoading();
+    sendBtn.disabled = true;
+    try{
+      const res = await fetch(API_BASE + '/query', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ query: text, image_ids: imageIds })
+      });
+      removeLoading();
+      if (!res.ok){
+        let detail = 'HTTP ' + res.status;
+        try{ const j = await res.json(); detail = j.detail || j.message || detail; }catch(e){}
+        appendError(detail);
+      } else {
+        const data = await res.json();
+        appendAgentResponse(data);
+      }
+    } catch(err){
+      removeLoading();
+      appendError('Could not reach the backend at ' + API_BASE + '. Check the endpoint and CORS settings.');
+    }
+    sendBtn.disabled = false;
+    refreshInteractivity();
+  }
+
+  sendBtn.addEventListener('click', () => { const v = queryInput.value; queryInput.value=''; runQuery(v); });
+  queryInput.addEventListener('keydown', e => { if (e.key === 'Enter'){ const v = queryInput.value; queryInput.value=''; runQuery(v); } });
+  quickActions.addEventListener('click', e => {
+    const chip = e.target.closest('.chip');
+    if (chip && !chip.disabled) runQuery(chip.getAttribute('data-q'));
+  });
+
+  // ---------------- Init ----------------
+  refreshInteractivity();
+  checkHealth();
+})();
+</script>
+</body>
+</html>

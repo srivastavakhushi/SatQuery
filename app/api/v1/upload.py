@@ -25,7 +25,7 @@ async def upload_files(
     """
     POST /api/v1/upload
     Receive, validate, store, and return image IDs.
-    Does not run Sih preprocessing or CDChat.
+    Does not run Sih preprocessing or RSICRC.
     """
     if not files:
         raise HTTPException(

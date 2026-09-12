@@ -1,6 +1,6 @@
 # Multi-Modal Geospatial AI Backend Gateway
 
-A modular FastAPI backend featuring an Intent Classifier, LangGraph Agent State Machine & Task Planner, Extensible Tool Registry with remote model adapters (GeoLLaVA, CDChat, Popeye, ResNet-50), Sih raster/fusion, and audit-grade execution traces.
+A modular FastAPI backend featuring an Intent Classifier, LangGraph Agent State Machine & Task Planner, Extensible Tool Registry with remote model adapters (GeoLLaVA, RSICRC, Popeye, ResNet-50), Sih raster/fusion, and audit-grade execution traces.
 
 This gateway does **not** load large model weights. Inference happens at configured remote HTTP endpoints.
 
@@ -22,7 +22,7 @@ This gateway does **not** load large model weights. Inference happens at configu
 
 4. **Remote model adapters**
    - **GeoLLaVA**: VQA, captioning, grounding (via `LLAVA_URL`). Sends a `.npy` array as multipart `file`.
-   - **CDChat**: bi-temporal change description (via `CDCHAT_URL`)
+   - **RSICRC**: bi-temporal change analysis (via `RSICRC_URL`). Sends RGB PNGs as multipart `before` + `after`.
    - **Popeye**: optical + SAR understanding (via `POPEYE_URL`). Sends RGB PNGs as multipart `optical_image` + `sar_image`.
    - **ResNet-50**: supporting features/domain service only (`RESNET_URL`). Not used on query routes.
 
@@ -35,7 +35,7 @@ This gateway does **not** load large model weights. Inference happens at configu
 | `VQA` | `VQA` | GeoLLaVA VQA |
 | `CAPTIONING` | `Captioning` | GeoLLaVA caption |
 | `GROUNDING` | `Grounding` | GeoLLaVA grounding |
-| `BI_TEMPORAL_CHANGE` | `ChangeDetection` | CDChat |
+| `BI_TEMPORAL_CHANGE` | `ChangeDetection` | RSICRC |
 | `OPTICAL_SAR` | `OpticalSAR` | Popeye |
 
 Qwen, YOLO, and RingMoGPT are **not** on live routes.
@@ -56,7 +56,7 @@ Default: `MODEL_MOCK_MODE=false`.
 
 `localhost` URLs mean that model is running on this PC (weights would be local to that process). Point URLs at a GPU host to keep weights off this machine.
 
-Popeye is reached at `POPEYE_URL` (`POST /analyze` with multipart `query` + `optical_image` + `sar_image`). GeoLLaVA is reached at `LLAVA_URL` (`POST /vqa` with multipart `.npy` + question).
+Popeye is reached at `POPEYE_URL` (`POST /analyze` with multipart `query` + `optical_image` + `sar_image`). GeoLLaVA is reached at `LLAVA_URL` (`POST /vqa` with multipart `.npy` + question). RSICRC is reached at `RSICRC_URL` (`POST /analyze` with multipart `before` + `after` PNGs).
 
 ---
 
@@ -64,15 +64,9 @@ Popeye is reached at `POPEYE_URL` (`POST /analyze` with multipart `query` + `opt
 
 **Stays on this backend:** FastAPI, classifier, LangGraph, upload storage, Sih raster/preprocessing/fusion/reporting, thin HTTP adapters.
 
-**Runs on a GPU host:** GeoLLaVA, CDChat, Popeye, and (if used) ResNet-50 checkpoints. This repo does not contain `.pt` / `.pth` / `.safetensors` weights.
+**Runs on a GPU host:** GeoLLaVA, RSICRC, Popeye, and (if used) ResNet-50 checkpoints. This repo does not contain `.pt` / `.pth` / `.safetensors` weights.
 
-CDChat wrapper (already in `services/cdchat/`):
-
-```bash
-uvicorn services.cdchat.main:app --host 0.0.0.0 --port 8001
-```
-
-Then set `CDCHAT_URL` to that host (not this laptop, unless the GPU is here).
+Point `RSICRC_URL` at the RSICRC Change Analysis API (FastAPI `/analyze`). The docs page may be `/docs`; this gateway strips that suffix automatically.
 
 ---
 
@@ -82,12 +76,12 @@ Copy `.env.example` to `.env`. Placeholders only:
 
 ```
 LLAVA_URL=
-CDCHAT_URL=
+RSICRC_URL=
 POPEYE_URL=
 RESNET_URL=
 MODEL_MOCK_MODE=false
 LLAVA_MOCK=false
-CDCHAT_MOCK=false
+RSICRC_MOCK=false
 POPEYE_MOCK=false
 RESNET_MOCK=false
 ```
@@ -105,12 +99,12 @@ These routes belong to **this** FastAPI app. They resolve `image_id`s and POST t
 | `POST /api/v1/models/llava/vqa` | `{LLAVA_URL}/vqa` (multipart `.npy`) |
 | `POST /api/v1/models/llava/caption` | `{LLAVA_URL}/vqa` (multipart `.npy`) |
 | `POST /api/v1/models/llava/grounding` | `{LLAVA_URL}/vqa` (multipart `.npy`) |
-| `POST /api/v1/models/cdchat/change` | `{CDCHAT_URL}/cdchat/predict` |
+| `POST /api/v1/models/rsicrc/change` | `{RSICRC_URL}/analyze` (multipart `before` + `after` PNG) |
 | `POST /api/v1/models/popeye/optical-sar` | `{POPEYE_URL}/analyze` (multipart PNG pair) |
 | `POST /api/v1/models/resnet/features` | `{RESNET_URL}/features` |
 | `GET /api/v1/models/health` | probes `/health` on each URL |
 
-GeoLLaVA receives RGB as a `.npy` file over multipart form data. CDChat still sends RGB PNG as base64; 448px BGR stays on the GPU service.
+GeoLLaVA receives RGB as a `.npy` file over multipart form data. RSICRC receives RGB PNGs as multipart `before` and `after`.
 
 ---
 
@@ -125,7 +119,7 @@ POST /api/v1/upload
 
 POST /api/v1/query
   → classifier
-  → BI_TEMPORAL_CHANGE: Sih load/validate/normalize → RGB → CDCHAT_URL → Sih fusion
+  → BI_TEMPORAL_CHANGE: Sih load/validate/normalize → RGB PNG pair → RSICRC_URL `/analyze` → Sih fusion
   → VQA / caption / grounding: storage → RGB `.npy` → LLAVA_URL
   → OPTICAL_SAR: storage → RGB PNG pair → POPEYE_URL `/analyze`
 ```
@@ -156,17 +150,13 @@ uvicorn app.main:app --reload
 
 Docs: `http://localhost:8000/docs`.
 
-### 5. Launch CDChat on a GPU host (optional, separate process)
+### 5. Point RSICRC at a GPU host
 
-```bash
-$env:CDCHAT_MODEL_PATH="C:\path\to\cdchat_lora"
-$env:CDCHAT_MODEL_BASE="C:\path\to\llava-v1.5-7b"
-$env:CDCHAT_MM_PROJECTOR_PATH="C:\path\to\mm_projector.bin"
-$env:CDCHAT_DEVICE="cuda"
-uvicorn services.cdchat.main:app --host 0.0.0.0 --port 8001
+Set `RSICRC_URL` to the RSICRC Change Analysis API base URL (not this laptop, unless the GPU is here). Example:
+
 ```
-
-Set `CDCHAT_URL` on this backend to that host. `CDCHAT_SERVICE_MOCK` applies only to the CDChat **service** process, not this gateway.
+RSICRC_URL=https://your-rsicrc-host.example
+```
 
 ---
 

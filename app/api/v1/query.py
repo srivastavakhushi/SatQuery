@@ -12,7 +12,7 @@ async def process_query(request: QueryRequest):
     Receives natural language query + optional image IDs, classifies intent,
     executes LangGraph state machine, dispatches tools/models, and returns trace.
 
-    CDChat is invoked only when the classified intent is BI_TEMPORAL_CHANGE.
+    RSICRC is invoked only when the classified intent is BI_TEMPORAL_CHANGE.
     """
     if not request.query or not request.query.strip():
         raise HTTPException(
@@ -31,6 +31,7 @@ async def process_query(request: QueryRequest):
             status="success",
             query=agent_result["query"],
             intent=agent_result["intent"],
+            selected_model=agent_result.get("selected_model"),
             confidence=agent_result["overall_confidence"],
             answer=agent_result["final_answer"],
             fused_evidence=agent_result.get("fused_evidence", {}),

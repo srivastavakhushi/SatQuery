@@ -18,10 +18,10 @@ class LLaVAGroundingRequest(BaseModel):
     query: str = Field(..., description="Object or region to localize")
 
 
-class CDChatChangeRequest(BaseModel):
+class RSICRCChangeRequest(BaseModel):
     image_id_1: str
     image_id_2: str
-    question: str
+    question: str = ""
 
 
 class PopeyeOpticalSarRequest(BaseModel):
@@ -43,6 +43,6 @@ class ModelHealthStatus(BaseModel):
 
 class ModelsHealthResponse(BaseModel):
     llava: Dict[str, Any]
-    cdchat: Dict[str, Any]
+    rsicrc: Dict[str, Any]
     popeye: Dict[str, Any]
     resnet: Dict[str, Any]

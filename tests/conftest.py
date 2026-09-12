@@ -43,7 +43,7 @@ def disable_model_mocks(monkeypatch) -> None:
 
     monkeypatch.setattr(settings, "MODEL_MOCK_MODE", False)
     monkeypatch.setattr(settings, "LLAVA_MOCK", False)
-    monkeypatch.setattr(settings, "CDCHAT_MOCK", False)
+    monkeypatch.setattr(settings, "RSICRC_MOCK", False)
     monkeypatch.setattr(settings, "POPEYE_MOCK", False)
     monkeypatch.setattr(settings, "RESNET_MOCK", False)
 
@@ -95,12 +95,12 @@ def _resolve(handler, url, json_payload):
 
 
 @pytest.fixture
-def mock_cdchat_success():
-    with patch("app.tools.models.cd_chat.cdchat_adapter.run_cdchat") as mock_cdchat:
-        mock_cdchat.return_value = {
-            "answer": "CDChat identified bi-temporal changes between the two scenes.",
-            "model": "cdchat",
+def mock_rsicrc_success():
+    with patch("app.tools.models.rsicrc.rsicrc_adapter.run_rsicrc") as mock_rsicrc:
+        mock_rsicrc.return_value = {
+            "answer": "RSICRC identified bi-temporal changes between the two scenes.",
+            "model": "rsicrc",
             "confidence": 0.94,
             "mock": False,
         }
-        yield mock_cdchat
+        yield mock_rsicrc

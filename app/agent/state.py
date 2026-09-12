@@ -24,7 +24,7 @@ class AgentState(TypedDict):
     models_dispatched: List[str]
     tool_outputs: Dict[str, Any]
     selected_model: Optional[str]
-    cdchat_latency: float
+    rsicrc_latency: float
     
     # Node 5: Spatial Analysis Output
     spatial_analysis_results: Dict[str, Any]
